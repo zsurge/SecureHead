@@ -1,0 +1,728 @@
+L 1 "..\user\des.c"
+N#include "des.h"
+L 1 "..\user\des.h" 1
+N#ifndef _des_h
+N#define _des_h
+N
+N#include <stdint.h>
+L 1 "D:\Keil\ARM\ARMCC\bin\..\include\stdint.h" 1
+N/* Copyright (C) ARM Ltd., 1999 */
+N/* All rights reserved */
+N
+N/*
+N * RCS $Revision: 178085 $
+N * Checkin $Date: 2012-12-11 14:54:17 +0000 (Tue, 11 Dec 2012) $
+N * Revising $Author: agrant $
+N */
+N
+N#ifndef __stdint_h
+N#define __stdint_h
+N#define __ARMCLIB_VERSION 5030076
+N
+N  #ifndef __STDINT_DECLS
+N  #define __STDINT_DECLS
+N
+N    #undef __CLIBNS
+N
+N    #ifdef __cplusplus
+S      namespace std {
+S          #define __CLIBNS std::
+S          extern "C" {
+N    #else
+N      #define __CLIBNS
+N    #endif  /* __cplusplus */
+N
+N
+N/*
+N * 'signed' is redundant below, except for 'signed char' and if
+N * the typedef is used to declare a bitfield.
+N * '__int64' is used instead of 'long long' so that this header
+N * can be used in --strict mode.
+N */
+N
+N    /* 7.18.1.1 */
+N
+N    /* exact-width signed integer types */
+Ntypedef   signed          char int8_t;
+Ntypedef   signed short     int int16_t;
+Ntypedef   signed           int int32_t;
+Ntypedef   signed       __int64 int64_t;
+N
+N    /* exact-width unsigned integer types */
+Ntypedef unsigned          char uint8_t;
+Ntypedef unsigned short     int uint16_t;
+Ntypedef unsigned           int uint32_t;
+Ntypedef unsigned       __int64 uint64_t;
+N
+N    /* 7.18.1.2 */
+N
+N    /* smallest type of at least n bits */
+N    /* minimum-width signed integer types */
+Ntypedef   signed          char int_least8_t;
+Ntypedef   signed short     int int_least16_t;
+Ntypedef   signed           int int_least32_t;
+Ntypedef   signed       __int64 int_least64_t;
+N
+N    /* minimum-width unsigned integer types */
+Ntypedef unsigned          char uint_least8_t;
+Ntypedef unsigned short     int uint_least16_t;
+Ntypedef unsigned           int uint_least32_t;
+Ntypedef unsigned       __int64 uint_least64_t;
+N
+N    /* 7.18.1.3 */
+N
+N    /* fastest minimum-width signed integer types */
+Ntypedef   signed           int int_fast8_t;
+Ntypedef   signed           int int_fast16_t;
+Ntypedef   signed           int int_fast32_t;
+Ntypedef   signed       __int64 int_fast64_t;
+N
+N    /* fastest minimum-width unsigned integer types */
+Ntypedef unsigned           int uint_fast8_t;
+Ntypedef unsigned           int uint_fast16_t;
+Ntypedef unsigned           int uint_fast32_t;
+Ntypedef unsigned       __int64 uint_fast64_t;
+N
+N    /* 7.18.1.4 integer types capable of holding object pointers */
+Ntypedef   signed           int intptr_t;
+Ntypedef unsigned           int uintptr_t;
+N
+N    /* 7.18.1.5 greatest-width integer types */
+Ntypedef   signed       __int64 intmax_t;
+Ntypedef unsigned       __int64 uintmax_t;
+N
+N
+N#if !defined(__cplusplus) || defined(__STDC_LIMIT_MACROS)
+X#if !0L || 0L
+N
+N    /* 7.18.2.1 */
+N
+N    /* minimum values of exact-width signed integer types */
+N#define INT8_MIN                   -128
+N#define INT16_MIN                -32768
+N#define INT32_MIN          (~0x7fffffff)   /* -2147483648 is unsigned */
+N#define INT64_MIN  __ESCAPE__(~0x7fffffffffffffffll) /* -9223372036854775808 is unsigned */
+N
+N    /* maximum values of exact-width signed integer types */
+N#define INT8_MAX                    127
+N#define INT16_MAX                 32767
+N#define INT32_MAX            2147483647
+N#define INT64_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum values of exact-width unsigned integer types */
+N#define UINT8_MAX                   255
+N#define UINT16_MAX                65535
+N#define UINT32_MAX           4294967295u
+N#define UINT64_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.2.2 */
+N
+N    /* minimum values of minimum-width signed integer types */
+N#define INT_LEAST8_MIN                   -128
+N#define INT_LEAST16_MIN                -32768
+N#define INT_LEAST32_MIN          (~0x7fffffff)
+N#define INT_LEAST64_MIN  __ESCAPE__(~0x7fffffffffffffffll)
+N
+N    /* maximum values of minimum-width signed integer types */
+N#define INT_LEAST8_MAX                    127
+N#define INT_LEAST16_MAX                 32767
+N#define INT_LEAST32_MAX            2147483647
+N#define INT_LEAST64_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum values of minimum-width unsigned integer types */
+N#define UINT_LEAST8_MAX                   255
+N#define UINT_LEAST16_MAX                65535
+N#define UINT_LEAST32_MAX           4294967295u
+N#define UINT_LEAST64_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.2.3 */
+N
+N    /* minimum values of fastest minimum-width signed integer types */
+N#define INT_FAST8_MIN           (~0x7fffffff)
+N#define INT_FAST16_MIN          (~0x7fffffff)
+N#define INT_FAST32_MIN          (~0x7fffffff)
+N#define INT_FAST64_MIN  __ESCAPE__(~0x7fffffffffffffffll)
+N
+N    /* maximum values of fastest minimum-width signed integer types */
+N#define INT_FAST8_MAX             2147483647
+N#define INT_FAST16_MAX            2147483647
+N#define INT_FAST32_MAX            2147483647
+N#define INT_FAST64_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum values of fastest minimum-width unsigned integer types */
+N#define UINT_FAST8_MAX            4294967295u
+N#define UINT_FAST16_MAX           4294967295u
+N#define UINT_FAST32_MAX           4294967295u
+N#define UINT_FAST64_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.2.4 */
+N
+N    /* minimum value of pointer-holding signed integer type */
+N#define INTPTR_MIN (~0x7fffffff)
+N
+N    /* maximum value of pointer-holding signed integer type */
+N#define INTPTR_MAX   2147483647
+N
+N    /* maximum value of pointer-holding unsigned integer type */
+N#define UINTPTR_MAX  4294967295u
+N
+N    /* 7.18.2.5 */
+N
+N    /* minimum value of greatest-width signed integer type */
+N#define INTMAX_MIN  __ESCAPE__(~0x7fffffffffffffffll)
+N
+N    /* maximum value of greatest-width signed integer type */
+N#define INTMAX_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum value of greatest-width unsigned integer type */
+N#define UINTMAX_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.3 */
+N
+N    /* limits of ptrdiff_t */
+N#define PTRDIFF_MIN (~0x7fffffff)
+N#define PTRDIFF_MAX   2147483647
+N
+N    /* limits of sig_atomic_t */
+N#define SIG_ATOMIC_MIN (~0x7fffffff)
+N#define SIG_ATOMIC_MAX   2147483647
+N
+N    /* limit of size_t */
+N#define SIZE_MAX 4294967295u
+N
+N    /* limits of wchar_t */
+N    /* NB we have to undef and redef because they're defined in both
+N     * stdint.h and wchar.h */
+N#undef WCHAR_MIN
+N#undef WCHAR_MAX
+N
+N#if defined(__WCHAR32)
+X#if 0L
+S  #define WCHAR_MIN   0
+S  #define WCHAR_MAX   0xffffffffU
+N#else
+N  #define WCHAR_MIN   0
+N  #define WCHAR_MAX   65535
+N#endif
+N
+N    /* limits of wint_t */
+N#define WINT_MIN (~0x7fffffff)
+N#define WINT_MAX 2147483647
+N
+N#endif /* __STDC_LIMIT_MACROS */
+N
+N#if !defined(__cplusplus) || defined(__STDC_CONSTANT_MACROS)
+X#if !0L || 0L
+N
+N    /* 7.18.4.1 macros for minimum-width integer constants */
+N#define INT8_C(x)   (x)
+N#define INT16_C(x)  (x)
+N#define INT32_C(x)  (x)
+N#define INT64_C(x)  __ESCAPE__(x ## ll)
+N
+N#define UINT8_C(x)  (x ## u)
+N#define UINT16_C(x) (x ## u)
+N#define UINT32_C(x) (x ## u)
+N#define UINT64_C(x) __ESCAPE__(x ## ull)
+N
+N    /* 7.18.4.2 macros for greatest-width integer constants */
+N#define INTMAX_C(x)  __ESCAPE__(x ## ll)
+N#define UINTMAX_C(x) __ESCAPE__(x ## ull)
+N
+N#endif /* __STDC_CONSTANT_MACROS */
+N
+N    #ifdef __cplusplus
+S         }  /* extern "C" */
+S      }  /* namespace std */
+N    #endif /* __cplusplus */
+N  #endif /* __STDINT_DECLS */
+N
+N  #ifdef __cplusplus
+S    #ifndef __STDINT_NO_EXPORTS
+S      using ::std::int8_t;
+S      using ::std::int16_t;
+S      using ::std::int32_t;
+S      using ::std::int64_t;
+S      using ::std::uint8_t;
+S      using ::std::uint16_t;
+S      using ::std::uint32_t;
+S      using ::std::uint64_t;
+S      using ::std::int_least8_t;
+S      using ::std::int_least16_t;
+S      using ::std::int_least32_t;
+S      using ::std::int_least64_t;
+S      using ::std::uint_least8_t;
+S      using ::std::uint_least16_t;
+S      using ::std::uint_least32_t;
+S      using ::std::uint_least64_t;
+S      using ::std::int_fast8_t;
+S      using ::std::int_fast16_t;
+S      using ::std::int_fast32_t;
+S      using ::std::int_fast64_t;
+S      using ::std::uint_fast8_t;
+S      using ::std::uint_fast16_t;
+S      using ::std::uint_fast32_t;
+S      using ::std::uint_fast64_t;
+S      using ::std::intptr_t;
+S      using ::std::uintptr_t;
+S      using ::std::intmax_t;
+S      using ::std::uintmax_t;
+S    #endif 
+N  #endif /* __cplusplus */
+N
+N#endif /* __stdint_h */
+N
+N/* end of stdint.h */
+N
+N
+N
+L 5 "..\user\des.h" 2
+N
+N//#define BYTE unsigned char
+N
+N//void des(unsigned char *dat, unsigned char *key1, unsigned char mode);
+Nvoid des(uint8_t *datat, uint8_t *keyt, uint8_t encrypt);
+Nvoid tri_des(uint8_t *dat, uint8_t *key1, uint8_t *key2, uint8_t mode);
+Nvoid xor(uint8_t *sourceaddr, uint8_t *targetaddr, int length);
+N
+N#endif
+N
+L 2 "..\user\des.c" 2
+N
+N
+Nconst static uint8_t Sfun_Tab[8][64] = {
+N	//  S-1    
+N    {
+N    14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7,
+N    0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8,
+N    4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0,
+N    15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13
+N    },
+N    //  S-2      
+N    {
+N    15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10,
+N    3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5,
+N    0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15,
+N    13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9
+N    },
+N    //  S-3  
+N    {
+N    10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8,
+N    13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1,
+N    13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7,
+N    1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12
+N    },
+N    //  S-4   
+N    {
+N    7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15,
+N    13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9,
+N    10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4,
+N    3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14
+N    },
+N    //  S-5   
+N    {
+N    2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9,
+N    14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6,
+N    4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14,
+N    11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3
+N    },
+N    //  S-6   
+N    {
+N    12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11,
+N    10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8,
+N    9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6,
+N    4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13
+N    },
+N    //  S-7   
+N    {
+N    4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1,
+N    13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6,
+N    1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2,
+N    6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12
+N    },
+N    //  S-8   
+N    {
+N    13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7,
+N    1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2,
+N    7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8,
+N    2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11
+N    }};
+N
+N
+N/**************************************************************************
+N *                                                                        *
+N *                     DES                                                *
+N *                                                                        *
+N **************************************************************************/
+N
+Nvoid DoFirstChange(uint8_t *s)
+N{
+N    uint8_t i, j;
+N    uint8_t t[8];
+N    for (i = 0; i < 8; ++i)
+N    {
+N        t[i] = 0;
+N    }
+N    for (i = 0; i < 8; ++i)
+N    {
+N        for (j = 0; j < 8; ++j)
+N        {
+N            t[7 - j] |= ((s[i] >> j) & 0x01) << i;
+N        }
+N    }
+N    for (i = 0; i < 4; ++i)
+N    {
+N        s[i] = t[2 * i + 1];
+N        s[i + 4] = t[2 * i];
+N    }
+N}
+N
+Nvoid DoKey(uint8_t *s, uint8_t * C, uint8_t * D)
+N{
+N    uint8_t i, j;
+N    uint8_t  t[8];
+N
+N    for (i = 0; i < 8; ++i)
+N    {
+N        t[i] = 0;
+N    }
+N    for (i = 0; i < 8; ++i)
+N    {
+N        for (j = 0; j < 8; ++j)
+N        {
+N            t[7 - j] |= ((s[i] & (0x01 << j)) >> j) << i;
+N        }
+N    }
+N    for (i = 0; i < 4; i++)
+N    {
+N        C[i] = t[i];
+N        D[i] = t[6 - i];
+N    }
+N    C[3] &= 0xf0;
+N    D[3] = (D[3] & 0x0f) << 4;
+N}
+N
+Nvoid DoLeft(uint8_t * s, int16_t n)
+N{
+N    uint8_t  L, t, i;
+N
+N    L = 0xff << (8 - n);
+N    t = (s[0] & L) >> 4;
+N    s[3] |= t;
+N    for (i = 0; i < 3; i++)
+N    {
+N        s[i] = s[i] << n;
+N        t = (s[i + 1] & L) >> (8 - n);
+N        s[i] |= t;
+N    }
+N    s[3] = s[3] << n;
+N}
+N
+N
+Nvoid DoRight(uint8_t * s, int16_t n)
+N{
+N    uint8_t   i, l, l1;
+N    for (i = 0; i < n; ++i)
+N    {
+N        l = s[0] & 1;
+N        s[0] >>= 1;
+N        l1 = s[1] & 1;
+N        s[1] >>= 1;
+N        s[1] |= (l << 7);
+N        l = s[2] & 1;
+N        s[2] >>= 1;
+N        s[2] |= (l1 << 7);
+N        s[3] >>= 1;
+N        s[3] |= (l << 7);
+N
+N        if ((s[3] & 0xf) != 0)
+N        {
+N            s[0] |= 0x80;
+N            s[3] &= 0xf0;
+N        }
+N    }
+N}
+N
+Nvoid SetKey(int16_t encrypt, uint8_t * C, uint8_t * D, int16_t n, uint8_t * K)
+N{
+N    uint8_t i;
+N
+N    for (i = 0; i < 6; ++i)
+N    {
+N        K[i] = 0;
+N    }
+N    if (encrypt == 0)
+N    {
+N        DoLeft(C, n);
+N        DoLeft(D, n);
+N    }
+N    K[0] = ((C[1] & 4) << 5) |
+N           ((C[2] & 0X80) >> 1) |
+N           (C[1] & 0X20) |
+N           ((C[2] & 1) << 4) |
+N           ((C[0] & 0X80) >> 4) |
+N           ((C[0] & 8) >> 1) |
+N           ((C[0] & 0X20) >> 4) |
+N           ((C[3] & 0X10) >> 4);
+N    K[1] = ((C[1] & 2) << 6) |
+N           ((C[0] & 4) << 4) |
+N           ((C[2] & 8) << 2) |
+N           ((C[1] & 0X40) >> 2) |
+N           ((C[2] & 2) << 2) |
+N           ((C[2] & 0x20) >> 3) |
+N           ((C[1] & 0X10) >> 3) |
+N           ((C[0] & 0X10) >> 4);
+N    K[2] = ((C[3] & 0x40) << 1) |
+N           ((C[0] & 0X01) << 6) |
+N           ((C[1] & 0X01) << 5) |
+N           ((C[0] & 2) << 3) |
+N           ((C[3] & 0X20) >> 2) |
+N           ((C[2] & 0x10) >> 2) |
+N           ((C[1] & 0X08) >> 2) |
+N           ((C[0] & 0X40) >> 6);
+N    K[3] = ((D[1] & 0x08) << 4) |
+N           ((D[2] & 0X01) << 6) |
+N           (D[0] & 0X20) |
+N           ((D[1] & 0x80) >> 3) |
+N           ((D[2] & 0X20) >> 2) |
+N           ((D[3] & 0x20) >> 3) |
+N           ((D[0] & 0X40) >> 5) |
+N           ((D[1] & 0X10) >> 4);
+N    K[4] = ((D[2] & 0x02) << 6) |
+N           ((D[2] & 0X80) >> 1) |
+N           ((D[0] & 0X08) << 2) |
+N           (D[2] & 0x10) |
+N           ((D[1] & 0X01) << 3) |
+N           ((D[2] & 0x08) >> 1) |
+N           ((D[1] & 0X20) >> 4) |
+N           ((D[3] & 0X10) >> 4);
+N    K[5] = ((D[0] & 0x04) << 5) |
+N           ((D[3] & 0X80) >> 1) |
+N           ((D[2] & 0X40) >> 1) |
+N           ((D[1] & 0x04) << 2) |
+N           ((D[2] & 0X04) << 1) |
+N           ((D[0] & 0x01) << 2) |
+N           ((D[0] & 0X80) >> 6) |
+N           ((D[0] & 0X10) >> 4);
+N    if (encrypt == 1)
+N    {
+N        DoRight(C, n);
+N        DoRight(D, n);
+N    }
+N}
+N
+Nvoid E_expand(uint8_t * s, uint8_t * r)
+N{
+N    r[0] = ((s[3] & 0x01) << 7) | ((s[0] & 0xf8) >> 1) | ((s[0] & 0x18) >> 3);
+N    r[1] = ((s[0] & 0x07) << 5) | ((s[0] & 0x01) << 3) | ((s[1] & 0x80) >> 3) |	((s[1] & 0xe0) >> 5);
+N    r[2] = ((s[1] & 0x18) << 3) | ((s[1] & 0x1f) << 1) | ((s[2] & 0x80) >> 7);
+N    r[3] = ((s[1] & 0x01) << 7) | ((s[2] & 0xf8) >> 1) | ((s[2] & 0x18) >> 3);
+N    r[4] = ((s[2] & 0x07) << 5) | ((s[2] & 0x01) << 3) | ((s[3] & 0x80) >> 3) |	((s[3] & 0xe0) >> 5);
+N    r[5] = ((s[3] & 0x18) << 3) | ((s[3] & 0x1f) << 1) | ((s[0] & 0x80) >> 7);
+N}
+N
+Nvoid P_chang(uint8_t * s)
+N{
+N    uint8_t i;
+N    uint8_t  t[4];
+N    t[0] = ((s[1] & 0x01) << 7) |
+N           ((s[0] & 0x02) << 5) |
+N           ((s[2] & 0x10) << 1) |
+N           ((s[2] & 0x08) << 1) |
+N           (s[3] & 0x08) |
+N           ((s[1] & 0x10) >> 2) |
+N           ((s[3] & 0x10) >> 3) |
+N           ((s[2] & 0x80) >> 7) ;
+N    t[1] = (s[0] & 0x80) |
+N           ((s[1] & 0x02) << 5) |
+N           ((s[2] & 0x02) << 4) |
+N           ((s[3] & 0x40) >> 2) |
+N           (s[0] & 0x08) |
+N           ((s[2] & 0x40) >> 4) |
+N           (s[3] & 0x02) |
+N           ((s[1] & 0x40) >> 6) ;
+N    t[2] = ((s[0] & 0x40) << 1) |
+N           ((s[0] & 0x01) << 6) |
+N           ((s[2] & 0x01) << 5) |
+N           ((s[1] & 0x04) << 2) |
+N           ((s[3] & 0x01) << 3) |
+N           ((s[3] & 0x20) >> 3) |
+N           ((s[0] & 0x20) >> 4) |
+N           ((s[1] & 0x80) >> 7) ;
+N    t[3] = ((s[2] & 0x20) << 2) |
+N           ((s[1] & 0x08) << 3) |
+N           ((s[3] & 0x04) << 3) |
+N           ((s[0] & 0x04) << 2) |
+N           ((s[2] & 0x04) << 1) |
+N           ((s[1] & 0x20) >> 3) |
+N           ((s[0] & 0x10) >> 3) |
+N           ((s[3] & 0x80) >> 7) ;
+N    for (i = 0 ; i < 4; ++i)
+N    {
+N        s[i] = t[i];
+N    }
+N}
+N
+Nuint8_t Find_S(uint8_t * s, int16_t ns)
+N{
+N    uint8_t   col, num, index;
+N    if (ns == 1 || ns == 5)
+N    {
+N        col = ((s[0] & 0x80) >> 6) | ((s[0] & 0x04) >> 2);
+N        num = (s[0] & 0x78) >> 3;
+N        index = col * 16 + num;
+N    }
+N    if (ns == 2 || ns == 6)
+N    {
+N        col = (s[0] & 0x02) | ((s[1] & 0x10) >> 4);
+N        num = ((s[0] & 0x01) << 3) | ((s[1] & 0xe0) >> 5);
+N        index = col * 16 + num;
+N    }
+N    if (ns == 3 || ns == 7)
+N    {
+N        col = ((s[1] & 0x08) >> 2) | ((s[2] & 0x40) >> 6);
+N        num = ((s[1] & 0x07) << 1) | ((s[2] & 0x80) >> 7);
+N        index = col * 16 + num;
+N    }
+N    if (ns == 4 || ns == 8)
+N    {
+N        col = ((s[2] & 0x20) >> 4) | (s[2] & 0x01) ;
+N        num = ((s[2] & 0x1e) >> 1);
+N        index = col * 16 + num;
+N    }
+N    return Sfun_Tab[ns - 1][index];
+N}
+N
+N
+Nvoid f_fun(uint8_t * R,
+N           uint8_t * K,
+N           uint8_t * m)
+N{
+N    uint8_t i;
+N    uint8_t  t[6];
+N
+N    E_expand(R, t);
+N    for (i = 0; i < 6; ++i)
+N    {
+N        t[i] ^= K[i];
+N    }
+N
+N    m[0] = (Find_S(t, 1) << 4) | Find_S(t, 2);
+N    m[1] = (Find_S(t, 3) << 4) | Find_S(t, 4);
+N    m[2] = (Find_S(t + 3, 5) << 4) | Find_S(t + 3, 6);
+N    m[3] = (Find_S(t + 3, 7) << 4) | Find_S(t + 3, 8);
+N
+N    P_chang(m);
+N}
+N
+N/*************************************************
+N  Function:       // DesEncrypt(int16_t encrypt, uint8_t* datat, uint8_t* keyt)
+N  Description:    // DES加解密函数
+N  Input:			encrypt = 0; 加密
+N					encrypt = 1; 解密
+N			        datat,原数据.8BYTE
+N					keyt,密钥 8BYTE
+N  Output:         // datat加解密后数据
+N  Return:         // 无
+N  Usage:          // 
+N  Others:         // 加解密后数据放在datat
+N*************************************************/
+Nvoid des(unsigned char *datat, unsigned char *keyt, unsigned char encrypt)
+N{
+N    uint8_t  i, j;
+N
+N    uint8_t  en_loop[16] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+N    uint8_t  de_loop[16] = {1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1};
+N    uint8_t  C0[4], D0[4], K[6];
+N    uint8_t  * L, * R,c;
+N    uint8_t  s1[9], s2[9],t[8],tx1[4],t2[6];
+N
+N    for (i = 0; i < 8; ++i)
+N    {
+N        s1[i] = datat[i];
+N        s2[i] = keyt[i];
+N    }
+N    s1[8] = 0;
+N    s2[8] = 0;
+N    DoFirstChange(s1);
+N    L = s1; R = s1 + 4;
+N    DoKey(s2, C0, D0);
+N    for (i = 0; i < 16; ++i)
+N    {
+N        if (encrypt)
+N        {
+N            SetKey(encrypt, C0, D0, de_loop[i], K);
+N        }
+N        else
+N        {
+N            SetKey(encrypt, C0, D0, en_loop[i], K);
+N        }
+N
+N        f_fun(R, K, t);
+N
+N        E_expand(R, t2);
+N        for (j = 0; j < 6; ++j)
+N        {
+N            t2[j] ^= K[j];
+N        }
+N
+N        tx1[0] = (Find_S(t2, 1) << 4) | Find_S(t2, 2);
+N        tx1[1] = (Find_S(t2, 3) << 4) | Find_S(t2, 4);
+N        tx1[2] = (Find_S(t2 + 3, 5) << 4) | Find_S(t2 + 3, 6);
+N        tx1[3] = (Find_S(t2 + 3, 7) << 4) | Find_S(t2 + 3, 8);
+N        P_chang(tx1);
+N
+N        for (j = 0; j < 4; ++j)
+N        {
+N            tx1[j] ^= L[j];
+N            L[j] = R[j];
+N            R[j] = tx1[j];
+N        }
+N    }
+N    for (i = 0; i < 4; ++i)
+N    {
+N        c = R[i];
+N        s1[i + 4] = L[i];
+N        s1[i] = c;
+N    }
+N
+N    for (i = 0; i < 8; ++i)
+N    {
+N        t[i] = 0;
+N    }
+N    for (i = 0; i < 8; ++i)
+N    {
+N        for (j = 0; j < 4; ++j)
+N        {
+N            t[i] |= ((s1[j] << (7 - i)) & 0x80) >> (2 * j + 1);
+N            t[i] |= ((s1[j + 4] << (7 - i)) & 0x80) >> (2 * j);
+N        }
+N    }
+N    for (i = 0; i < 8; ++i)  //s1[i] = t[i];
+N    {
+N        datat[i] = t[i];
+N    }
+N}
+N
+N
+N
+N
+N
+N/* This function is right */
+Nvoid xor(uint8_t *sourceaddr, uint8_t *targetaddr, int length)	
+N{
+N	int i;
+N	for (i = 0; i < length; i ++)	/* 求异或 */
+N		sourceaddr[i] ^= targetaddr[i];
+N}
+N
+N/* This function is right */
+Nvoid tri_des(unsigned char *dat, unsigned char *key1, unsigned char *key2, unsigned char mode)
+N{
+N	des(dat, key1, mode);
+N	des(dat, key2, 1 - mode);
+N	des(dat, key1, mode);
+N}
+N
+N
+N

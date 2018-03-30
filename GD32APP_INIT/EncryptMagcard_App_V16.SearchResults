@@ -1,0 +1,6 @@
+---- READID Matches (5 in 2 files) ----
+app.c (Src):		case READID:
+app.c (Src):			if(RxdBuf[2] == READID) 
+app.c (Src):					case READID:						    //0x22	/* read secureheadreader ID */
+app.c (Src):						send_frame(READID);
+app.h (Inc):#define READID							0x22	/* read secureheadreader ID */

@@ -1,0 +1,1836 @@
+L 1 "..\user\dukpt.c"
+N#include <string.h>
+L 1 "D:\Keil\ARM\ARMCC\bin\..\include\string.h" 1
+N/* string.h: ANSI 'C' (X3J11 Oct 88) library header, section 4.11 */
+N/* Copyright (C) Codemist Ltd., 1988-1993.                        */
+N/* Copyright 1991-1993 ARM Limited. All rights reserved.          */
+N/* version 0.04 */
+N
+N/*
+N * RCS $Revision: 178085 $
+N * Checkin $Date: 2012-12-11 14:54:17 +0000 (Tue, 11 Dec 2012) $
+N */
+N
+N/*
+N * string.h declares one type and several functions, and defines one macro
+N * useful for manipulating character arrays and other objects treated as
+N * character arrays. Various methods are used for determining the lengths of
+N * the arrays, but in all cases a char * or void * argument points to the
+N * initial (lowest addresses) character of the array. If an array is written
+N * beyond the end of an object, the behaviour is undefined.
+N */
+N
+N#ifndef __string_h
+N#define __string_h
+N#define __ARMCLIB_VERSION 5030076
+N
+N#define _ARMABI __declspec(__nothrow)
+N
+N  #ifndef __STRING_DECLS
+N  #define __STRING_DECLS
+N
+N    #undef __CLIBNS
+N
+N    #ifdef __cplusplus
+S        namespace std {
+S        #define __CLIBNS std::
+S        extern "C" {
+N    #else
+N      #define __CLIBNS
+N    #endif  /* __cplusplus */
+N
+N#if defined(__cplusplus) || !defined(__STRICT_ANSI__)
+X#if 0L || !0L
+N /* unconditional in C++ and non-strict C for consistency of debug info */
+N  typedef unsigned int size_t;
+N#elif !defined(__size_t)
+S  #define __size_t 1
+S  typedef unsigned int size_t;   /* see <stddef.h> */
+N#endif
+N
+N#undef NULL
+N#define NULL 0                   /* see <stddef.h> */
+N
+Nextern _ARMABI void *memcpy(void * __restrict /*s1*/,
+Xextern __declspec(__nothrow) void *memcpy(void * __restrict  ,
+N                    const void * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies n characters from the object pointed to by s2 into the object
+N    * pointed to by s1. If copying takes place between objects that overlap,
+N    * the behaviour is undefined.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI void *memmove(void * /*s1*/,
+Xextern __declspec(__nothrow) void *memmove(void *  ,
+N                    const void * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies n characters from the object pointed to by s2 into the object
+N    * pointed to by s1. Copying takes place as if the n characters from the
+N    * object pointed to by s2 are first copied into a temporary array of n
+N    * characters that does not overlap the objects pointed to by s1 and s2,
+N    * and then the n characters from the temporary array are copied into the
+N    * object pointed to by s1.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI char *strcpy(char * __restrict /*s1*/, const char * __restrict /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strcpy(char * __restrict  , const char * __restrict  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies the string pointed to by s2 (including the terminating nul
+N    * character) into the array pointed to by s1. If copying takes place
+N    * between objects that overlap, the behaviour is undefined.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI char *strncpy(char * __restrict /*s1*/, const char * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strncpy(char * __restrict  , const char * __restrict  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies not more than n characters (characters that follow a null
+N    * character are not copied) from the array pointed to by s2 into the array
+N    * pointed to by s1. If copying takes place between objects that overlap,
+N    * the behaviour is undefined.
+N    * Returns: the value of s1.
+N    */
+N
+Nextern _ARMABI char *strcat(char * __restrict /*s1*/, const char * __restrict /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strcat(char * __restrict  , const char * __restrict  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * appends a copy of the string pointed to by s2 (including the terminating
+N    * null character) to the end of the string pointed to by s1. The initial
+N    * character of s2 overwrites the null character at the end of s1.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI char *strncat(char * __restrict /*s1*/, const char * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strncat(char * __restrict  , const char * __restrict  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * appends not more than n characters (a null character and characters that
+N    * follow it are not appended) from the array pointed to by s2 to the end of
+N    * the string pointed to by s1. The initial character of s2 overwrites the
+N    * null character at the end of s1. A terminating null character is always
+N    * appended to the result.
+N    * Returns: the value of s1.
+N    */
+N
+N/*
+N * The sign of a nonzero value returned by the comparison functions is
+N * determined by the sign of the difference between the values of the first
+N * pair of characters (both interpreted as unsigned char) that differ in the
+N * objects being compared.
+N */
+N
+Nextern _ARMABI int memcmp(const void * /*s1*/, const void * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int memcmp(const void *  , const void *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the first n characters of the object pointed to by s1 to the
+N    * first n characters of the object pointed to by s2.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the object pointed to by s1 is greater than, equal to, or
+N    *          less than the object pointed to by s2.
+N    */
+Nextern _ARMABI int strcmp(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strcmp(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the string pointed to by s1 to the string pointed to by s2.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strncmp(const char * /*s1*/, const char * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strncmp(const char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares not more than n characters (characters that follow a null
+N    * character are not compared) from the array pointed to by s1 to the array
+N    * pointed to by s2.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strcasecmp(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strcasecmp(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the string pointed to by s1 to the string pointed to by s2,
+N    * case-insensitively as defined by the current locale.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strncasecmp(const char * /*s1*/, const char * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strncasecmp(const char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares not more than n characters (characters that follow a null
+N    * character are not compared) from the array pointed to by s1 to the array
+N    * pointed to by s2, case-insensitively as defined by the current locale.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strcoll(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strcoll(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the string pointed to by s1 to the string pointed to by s2, both
+N    * interpreted as appropriate to the LC_COLLATE category of the current
+N    * locale.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2 when both are interpreted
+N    *          as appropriate to the current locale.
+N    */
+N
+Nextern _ARMABI size_t strxfrm(char * __restrict /*s1*/, const char * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(2)));
+Xextern __declspec(__nothrow) size_t strxfrm(char * __restrict  , const char * __restrict  , size_t  ) __attribute__((__nonnull__(2)));
+N   /*
+N    * transforms the string pointed to by s2 and places the resulting string
+N    * into the array pointed to by s1. The transformation function is such that
+N    * if the strcmp function is applied to two transformed strings, it returns
+N    * a value greater than, equal to or less than zero, corresponding to the
+N    * result of the strcoll function applied to the same two original strings.
+N    * No more than n characters are placed into the resulting array pointed to
+N    * by s1, including the terminating null character. If n is zero, s1 is
+N    * permitted to be a null pointer. If copying takes place between objects
+N    * that overlap, the behaviour is undefined.
+N    * Returns: The length of the transformed string is returned (not including
+N    *          the terminating null character). If the value returned is n or
+N    *          more, the contents of the array pointed to by s1 are
+N    *          indeterminate.
+N    */
+N
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const void *memchr(const void * /*s*/, int /*c*/, size_t /*n*/) __attribute__((__nonnull__(1)));
+Sextern "C++" void *memchr(void * __s, int __c, size_t __n) __attribute__((__nonnull__(1)));
+Sextern "C++" inline void *memchr(void * __s, int __c, size_t __n)
+S    { return const_cast<void *>(memchr(const_cast<const void *>(__s), __c, __n)); }
+N#else
+Nextern _ARMABI void *memchr(const void * /*s*/, int /*c*/, size_t /*n*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) void *memchr(const void *  , int  , size_t  ) __attribute__((__nonnull__(1)));
+N#endif
+N   /*
+N    * locates the first occurence of c (converted to an unsigned char) in the
+N    * initial n characters (each interpreted as unsigned char) of the object
+N    * pointed to by s.
+N    * Returns: a pointer to the located character, or a null pointer if the
+N    *          character does not occur in the object.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Sextern "C++" char *strchr(char * __s, int __c) __attribute__((__nonnull__(1)));
+Sextern "C++" inline char *strchr(char * __s, int __c)
+S    { return const_cast<char *>(strchr(const_cast<const char *>(__s), __c)); }
+N#else
+Nextern _ARMABI char *strchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) char *strchr(const char *  , int  ) __attribute__((__nonnull__(1)));
+N#endif
+N   /*
+N    * locates the first occurence of c (converted to an char) in the string
+N    * pointed to by s (including the terminating null character).
+N    * Returns: a pointer to the located character, or a null pointer if the
+N    *          character does not occur in the string.
+N    */
+N
+Nextern _ARMABI size_t strcspn(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strcspn(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * computes the length of the initial segment of the string pointed to by s1
+N    * which consists entirely of characters not from the string pointed to by
+N    * s2. The terminating null character is not considered part of s2.
+N    * Returns: the length of the segment.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strpbrk(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Sextern "C++" char *strpbrk(char * __s1, const char * __s2) __attribute__((__nonnull__(1,2)));
+Sextern "C++" inline char *strpbrk(char * __s1, const char * __s2)
+S    { return const_cast<char *>(strpbrk(const_cast<const char *>(__s1), __s2)); }
+N#else
+Nextern _ARMABI char *strpbrk(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strpbrk(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N#endif
+N   /*
+N    * locates the first occurence in the string pointed to by s1 of any
+N    * character from the string pointed to by s2.
+N    * Returns: returns a pointer to the character, or a null pointer if no
+N    *          character form s2 occurs in s1.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strrchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Sextern "C++" char *strrchr(char * __s, int __c) __attribute__((__nonnull__(1)));
+Sextern "C++" inline char *strrchr(char * __s, int __c)
+S    { return const_cast<char *>(strrchr(const_cast<const char *>(__s), __c)); }
+N#else
+Nextern _ARMABI char *strrchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) char *strrchr(const char *  , int  ) __attribute__((__nonnull__(1)));
+N#endif
+N   /*
+N    * locates the last occurence of c (converted to a char) in the string
+N    * pointed to by s. The terminating null character is considered part of
+N    * the string.
+N    * Returns: returns a pointer to the character, or a null pointer if c does
+N    *          not occur in the string.
+N    */
+N
+Nextern _ARMABI size_t strspn(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strspn(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * computes the length of the initial segment of the string pointed to by s1
+N    * which consists entirely of characters from the string pointed to by S2
+N    * Returns: the length of the segment.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strstr(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Sextern "C++" char *strstr(char * __s1, const char * __s2) __attribute__((__nonnull__(1,2)));
+Sextern "C++" inline char *strstr(char * __s1, const char * __s2)
+S    { return const_cast<char *>(strstr(const_cast<const char *>(__s1), __s2)); }
+N#else
+Nextern _ARMABI char *strstr(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strstr(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N#endif
+N   /*
+N    * locates the first occurence in the string pointed to by s1 of the
+N    * sequence of characters (excluding the terminating null character) in the
+N    * string pointed to by s2.
+N    * Returns: a pointer to the located string, or a null pointer if the string
+N    *          is not found.
+N    */
+N
+Nextern _ARMABI char *strtok(char * __restrict /*s1*/, const char * __restrict /*s2*/) __attribute__((__nonnull__(2)));
+Xextern __declspec(__nothrow) char *strtok(char * __restrict  , const char * __restrict  ) __attribute__((__nonnull__(2)));
+Nextern _ARMABI char *_strtok_r(char * /*s1*/, const char * /*s2*/, char ** /*ptr*/) __attribute__((__nonnull__(2,3)));
+Xextern __declspec(__nothrow) char *_strtok_r(char *  , const char *  , char **  ) __attribute__((__nonnull__(2,3)));
+N#ifndef __STRICT_ANSI__
+Nextern _ARMABI char *strtok_r(char * /*s1*/, const char * /*s2*/, char ** /*ptr*/) __attribute__((__nonnull__(2,3)));
+Xextern __declspec(__nothrow) char *strtok_r(char *  , const char *  , char **  ) __attribute__((__nonnull__(2,3)));
+N#endif
+N   /*
+N    * A sequence of calls to the strtok function breaks the string pointed to
+N    * by s1 into a sequence of tokens, each of which is delimited by a
+N    * character from the string pointed to by s2. The first call in the
+N    * sequence has s1 as its first argument, and is followed by calls with a
+N    * null pointer as their first argument. The separator string pointed to by
+N    * s2 may be different from call to call.
+N    * The first call in the sequence searches for the first character that is
+N    * not contained in the current separator string s2. If no such character
+N    * is found, then there are no tokens in s1 and the strtok function returns
+N    * a null pointer. If such a character is found, it is the start of the
+N    * first token.
+N    * The strtok function then searches from there for a character that is
+N    * contained in the current separator string. If no such character is found,
+N    * the current token extends to the end of the string pointed to by s1, and
+N    * subsequent searches for a token will fail. If such a character is found,
+N    * it is overwritten by a null character, which terminates the current
+N    * token. The strtok function saves a pointer to the following character,
+N    * from which the next search for a token will start.
+N    * Each subsequent call, with a null pointer as the value for the first
+N    * argument, starts searching from the saved pointer and behaves as
+N    * described above.
+N    * Returns: pointer to the first character of a token, or a null pointer if
+N    *          there is no token.
+N    *
+N    * strtok_r() is a common extension which works exactly like
+N    * strtok(), but instead of storing its state in a hidden
+N    * library variable, requires the user to pass in a pointer to a
+N    * char * variable which will be used instead. Any sequence of
+N    * calls to strtok_r() passing the same char ** pointer should
+N    * behave exactly like the corresponding sequence of calls to
+N    * strtok(). This means that strtok_r() can safely be used in
+N    * multi-threaded programs, and also that you can tokenise two
+N    * strings in parallel.
+N    */
+N
+Nextern _ARMABI void *memset(void * /*s*/, int /*c*/, size_t /*n*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) void *memset(void *  , int  , size_t  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * copies the value of c (converted to an unsigned char) into each of the
+N    * first n charactes of the object pointed to by s.
+N    * Returns: the value of s.
+N    */
+Nextern _ARMABI char *strerror(int /*errnum*/);
+Xextern __declspec(__nothrow) char *strerror(int  );
+N   /*
+N    * maps the error number in errnum to an error message string.
+N    * Returns: a pointer to the string, the contents of which are
+N    *          implementation-defined. The array pointed to shall not be
+N    *          modified by the program, but may be overwritten by a
+N    *          subsequent call to the strerror function.
+N    */
+Nextern _ARMABI size_t strlen(const char * /*s*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) size_t strlen(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * computes the length of the string pointed to by s.
+N    * Returns: the number of characters that precede the terminating null
+N    *          character.
+N    */
+N
+Nextern _ARMABI size_t strlcpy(char * /*dst*/, const char * /*src*/, size_t /*len*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strlcpy(char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies the string src into the string dst, using no more than
+N    * len bytes of dst. Always null-terminates dst _within the
+N    * length len (i.e. will copy at most len-1 bytes of string plus
+N    * a NUL), unless len is actually zero.
+N    * 
+N    * Return value is the length of the string that _would_ have
+N    * been written, i.e. the length of src. Thus, the operation
+N    * succeeded without truncation if and only if ret < len;
+N    * otherwise, the value in ret tells you how big to make dst if
+N    * you decide to reallocate it. (That value does _not_ include
+N    * the NUL.)
+N    * 
+N    * This is a BSD-derived library extension, which we are
+N    * permitted to declare in a standard header because ISO defines
+N    * function names beginning with 'str' as reserved for future
+N    * expansion of <string.h>.
+N    */
+N
+Nextern _ARMABI size_t strlcat(char * /*dst*/, const char * /*src*/, size_t /*len*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strlcat(char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * concatenates the string src to the string dst, using no more
+N    * than len bytes of dst. Always null-terminates dst _within the
+N    * length len (i.e. will copy at most len-1 bytes of string plus
+N    * a NUL), unless len is actually zero.
+N    * 
+N    * Return value is the length of the string that _would_ have
+N    * been written, i.e. the length of src plus the original length
+N    * of dst. Thus, the operation succeeded without truncation if
+N    * and only if ret < len; otherwise, the value in ret tells you
+N    * how big to make dst if you decide to reallocate it. (That
+N    * value does _not_ include the NUL.)
+N    * 
+N    * If no NUL is encountered within the first len bytes of dst,
+N    * then the length of dst is considered to have been equal to
+N    * len for the purposes of the return value (as if there were a
+N    * NUL at dst[len]). Thus, the return value in this case is len
+N    * + strlen(src).
+N    * 
+N    * This is a BSD-derived library extension, which we are
+N    * permitted to declare in a standard header because ISO defines
+N    * function names beginning with 'str' as reserved for future
+N    * expansion of <string.h>.
+N    */
+N
+Nextern _ARMABI void _membitcpybl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpybl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpybb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpybb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpyhl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpyhl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpyhb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpyhb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpywl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpywl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpywb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpywb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovebl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovebl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovebb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovebb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovehl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovehl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovehb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovehb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovewl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovewl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovewb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovewb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+N    /*
+N     * Copies or moves a piece of memory from one place to another,
+N     * with one-bit granularity. So you can start or finish a copy
+N     * part way through a byte, and you can copy between regions
+N     * with different alignment within a byte.
+N     * 
+N     * All these functions have the same prototype: two void *
+N     * pointers for destination and source, then two integers
+N     * giving the bit offset from those pointers, and finally the
+N     * number of bits to copy.
+N     * 
+N     * Just like memcpy and memmove, the "cpy" functions copy as
+N     * fast as they can in the assumption that the memory regions
+N     * do not overlap, while the "move" functions cope correctly
+N     * with overlap.
+N     *
+N     * Treating memory as a stream of individual bits requires
+N     * defining a convention about what order those bits are
+N     * considered to be arranged in. The above functions support
+N     * multiple conventions:
+N     * 
+N     *  - the "bl" functions consider the unit of memory to be the
+N     *    byte, and consider the bits within each byte to be
+N     *    arranged in little-endian fashion, so that the LSB comes
+N     *    first. (For example, membitcpybl(a,b,0,7,1) would copy
+N     *    the MSB of the byte at b to the LSB of the byte at a.)
+N     * 
+N     *  - the "bb" functions consider the unit of memory to be the
+N     *    byte, and consider the bits within each byte to be
+N     *    arranged in big-endian fashion, so that the MSB comes
+N     *    first.
+N     * 
+N     *  - the "hl" functions consider the unit of memory to be the
+N     *    16-bit halfword, and consider the bits within each word
+N     *    to be arranged in little-endian fashion.
+N     * 
+N     *  - the "hb" functions consider the unit of memory to be the
+N     *    16-bit halfword, and consider the bits within each word
+N     *    to be arranged in big-endian fashion.
+N     * 
+N     *  - the "wl" functions consider the unit of memory to be the
+N     *    32-bit word, and consider the bits within each word to be
+N     *    arranged in little-endian fashion.
+N     * 
+N     *  - the "wb" functions consider the unit of memory to be the
+N     *    32-bit word, and consider the bits within each word to be
+N     *    arranged in big-endian fashion.
+N     */
+N
+N    #ifdef __cplusplus
+S         }  /* extern "C" */
+S      }  /* namespace std */
+N    #endif /* __cplusplus */
+N  #endif /* __STRING_DECLS */
+N
+N  #ifdef __cplusplus
+S    #ifndef __STRING_NO_EXPORTS
+S      using ::std::size_t;
+S      using ::std::memcpy;
+S      using ::std::memmove;
+S      using ::std::strcpy;
+S      using ::std::strncpy;
+S      using ::std::strcat;
+S      using ::std::strncat;
+S      using ::std::memcmp;
+S      using ::std::strcmp;
+S      using ::std::strncmp;
+S      using ::std::strcasecmp;
+S      using ::std::strncasecmp;
+S      using ::std::strcoll;
+S      using ::std::strxfrm;
+S      using ::std::memchr;
+S      using ::std::strchr;
+S      using ::std::strcspn;
+S      using ::std::strpbrk;
+S      using ::std::strrchr;
+S      using ::std::strspn;
+S      using ::std::strstr;
+S      using ::std::strtok;
+S#ifndef __STRICT_ANSI__
+S      using ::std::strtok_r;
+S#endif
+S      using ::std::_strtok_r;
+S      using ::std::memset;
+S      using ::std::strerror;
+S      using ::std::strlen;
+S      using ::std::strlcpy;
+S      using ::std::strlcat;
+S      using ::std::_membitcpybl;
+S      using ::std::_membitcpybb;
+S      using ::std::_membitcpyhl;
+S      using ::std::_membitcpyhb;
+S      using ::std::_membitcpywl;
+S      using ::std::_membitcpywb;
+S      using ::std::_membitmovebl;
+S      using ::std::_membitmovebb;
+S      using ::std::_membitmovehl;
+S      using ::std::_membitmovehb;
+S      using ::std::_membitmovewl;
+S      using ::std::_membitmovewb;
+S    #endif /* __STRING_NO_EXPORTS */
+N  #endif /* __cplusplus */
+N
+N#endif
+N
+N/* end of string.h */
+N
+L 2 "..\user\dukpt.c" 2
+N#include "des.h"
+L 1 "..\user\des.h" 1
+N#ifndef _des_h
+N#define _des_h
+N
+N#include <stdint.h>
+L 1 "D:\Keil\ARM\ARMCC\bin\..\include\stdint.h" 1
+N/* Copyright (C) ARM Ltd., 1999 */
+N/* All rights reserved */
+N
+N/*
+N * RCS $Revision: 178085 $
+N * Checkin $Date: 2012-12-11 14:54:17 +0000 (Tue, 11 Dec 2012) $
+N * Revising $Author: agrant $
+N */
+N
+N#ifndef __stdint_h
+N#define __stdint_h
+N#define __ARMCLIB_VERSION 5030076
+N
+N  #ifndef __STDINT_DECLS
+N  #define __STDINT_DECLS
+N
+N    #undef __CLIBNS
+N
+N    #ifdef __cplusplus
+S      namespace std {
+S          #define __CLIBNS std::
+S          extern "C" {
+N    #else
+N      #define __CLIBNS
+N    #endif  /* __cplusplus */
+N
+N
+N/*
+N * 'signed' is redundant below, except for 'signed char' and if
+N * the typedef is used to declare a bitfield.
+N * '__int64' is used instead of 'long long' so that this header
+N * can be used in --strict mode.
+N */
+N
+N    /* 7.18.1.1 */
+N
+N    /* exact-width signed integer types */
+Ntypedef   signed          char int8_t;
+Ntypedef   signed short     int int16_t;
+Ntypedef   signed           int int32_t;
+Ntypedef   signed       __int64 int64_t;
+N
+N    /* exact-width unsigned integer types */
+Ntypedef unsigned          char uint8_t;
+Ntypedef unsigned short     int uint16_t;
+Ntypedef unsigned           int uint32_t;
+Ntypedef unsigned       __int64 uint64_t;
+N
+N    /* 7.18.1.2 */
+N
+N    /* smallest type of at least n bits */
+N    /* minimum-width signed integer types */
+Ntypedef   signed          char int_least8_t;
+Ntypedef   signed short     int int_least16_t;
+Ntypedef   signed           int int_least32_t;
+Ntypedef   signed       __int64 int_least64_t;
+N
+N    /* minimum-width unsigned integer types */
+Ntypedef unsigned          char uint_least8_t;
+Ntypedef unsigned short     int uint_least16_t;
+Ntypedef unsigned           int uint_least32_t;
+Ntypedef unsigned       __int64 uint_least64_t;
+N
+N    /* 7.18.1.3 */
+N
+N    /* fastest minimum-width signed integer types */
+Ntypedef   signed           int int_fast8_t;
+Ntypedef   signed           int int_fast16_t;
+Ntypedef   signed           int int_fast32_t;
+Ntypedef   signed       __int64 int_fast64_t;
+N
+N    /* fastest minimum-width unsigned integer types */
+Ntypedef unsigned           int uint_fast8_t;
+Ntypedef unsigned           int uint_fast16_t;
+Ntypedef unsigned           int uint_fast32_t;
+Ntypedef unsigned       __int64 uint_fast64_t;
+N
+N    /* 7.18.1.4 integer types capable of holding object pointers */
+Ntypedef   signed           int intptr_t;
+Ntypedef unsigned           int uintptr_t;
+N
+N    /* 7.18.1.5 greatest-width integer types */
+Ntypedef   signed       __int64 intmax_t;
+Ntypedef unsigned       __int64 uintmax_t;
+N
+N
+N#if !defined(__cplusplus) || defined(__STDC_LIMIT_MACROS)
+X#if !0L || 0L
+N
+N    /* 7.18.2.1 */
+N
+N    /* minimum values of exact-width signed integer types */
+N#define INT8_MIN                   -128
+N#define INT16_MIN                -32768
+N#define INT32_MIN          (~0x7fffffff)   /* -2147483648 is unsigned */
+N#define INT64_MIN  __ESCAPE__(~0x7fffffffffffffffll) /* -9223372036854775808 is unsigned */
+N
+N    /* maximum values of exact-width signed integer types */
+N#define INT8_MAX                    127
+N#define INT16_MAX                 32767
+N#define INT32_MAX            2147483647
+N#define INT64_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum values of exact-width unsigned integer types */
+N#define UINT8_MAX                   255
+N#define UINT16_MAX                65535
+N#define UINT32_MAX           4294967295u
+N#define UINT64_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.2.2 */
+N
+N    /* minimum values of minimum-width signed integer types */
+N#define INT_LEAST8_MIN                   -128
+N#define INT_LEAST16_MIN                -32768
+N#define INT_LEAST32_MIN          (~0x7fffffff)
+N#define INT_LEAST64_MIN  __ESCAPE__(~0x7fffffffffffffffll)
+N
+N    /* maximum values of minimum-width signed integer types */
+N#define INT_LEAST8_MAX                    127
+N#define INT_LEAST16_MAX                 32767
+N#define INT_LEAST32_MAX            2147483647
+N#define INT_LEAST64_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum values of minimum-width unsigned integer types */
+N#define UINT_LEAST8_MAX                   255
+N#define UINT_LEAST16_MAX                65535
+N#define UINT_LEAST32_MAX           4294967295u
+N#define UINT_LEAST64_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.2.3 */
+N
+N    /* minimum values of fastest minimum-width signed integer types */
+N#define INT_FAST8_MIN           (~0x7fffffff)
+N#define INT_FAST16_MIN          (~0x7fffffff)
+N#define INT_FAST32_MIN          (~0x7fffffff)
+N#define INT_FAST64_MIN  __ESCAPE__(~0x7fffffffffffffffll)
+N
+N    /* maximum values of fastest minimum-width signed integer types */
+N#define INT_FAST8_MAX             2147483647
+N#define INT_FAST16_MAX            2147483647
+N#define INT_FAST32_MAX            2147483647
+N#define INT_FAST64_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum values of fastest minimum-width unsigned integer types */
+N#define UINT_FAST8_MAX            4294967295u
+N#define UINT_FAST16_MAX           4294967295u
+N#define UINT_FAST32_MAX           4294967295u
+N#define UINT_FAST64_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.2.4 */
+N
+N    /* minimum value of pointer-holding signed integer type */
+N#define INTPTR_MIN (~0x7fffffff)
+N
+N    /* maximum value of pointer-holding signed integer type */
+N#define INTPTR_MAX   2147483647
+N
+N    /* maximum value of pointer-holding unsigned integer type */
+N#define UINTPTR_MAX  4294967295u
+N
+N    /* 7.18.2.5 */
+N
+N    /* minimum value of greatest-width signed integer type */
+N#define INTMAX_MIN  __ESCAPE__(~0x7fffffffffffffffll)
+N
+N    /* maximum value of greatest-width signed integer type */
+N#define INTMAX_MAX  __ESCAPE__(9223372036854775807ll)
+N
+N    /* maximum value of greatest-width unsigned integer type */
+N#define UINTMAX_MAX __ESCAPE__(18446744073709551615ull)
+N
+N    /* 7.18.3 */
+N
+N    /* limits of ptrdiff_t */
+N#define PTRDIFF_MIN (~0x7fffffff)
+N#define PTRDIFF_MAX   2147483647
+N
+N    /* limits of sig_atomic_t */
+N#define SIG_ATOMIC_MIN (~0x7fffffff)
+N#define SIG_ATOMIC_MAX   2147483647
+N
+N    /* limit of size_t */
+N#define SIZE_MAX 4294967295u
+N
+N    /* limits of wchar_t */
+N    /* NB we have to undef and redef because they're defined in both
+N     * stdint.h and wchar.h */
+N#undef WCHAR_MIN
+N#undef WCHAR_MAX
+N
+N#if defined(__WCHAR32)
+X#if 0L
+S  #define WCHAR_MIN   0
+S  #define WCHAR_MAX   0xffffffffU
+N#else
+N  #define WCHAR_MIN   0
+N  #define WCHAR_MAX   65535
+N#endif
+N
+N    /* limits of wint_t */
+N#define WINT_MIN (~0x7fffffff)
+N#define WINT_MAX 2147483647
+N
+N#endif /* __STDC_LIMIT_MACROS */
+N
+N#if !defined(__cplusplus) || defined(__STDC_CONSTANT_MACROS)
+X#if !0L || 0L
+N
+N    /* 7.18.4.1 macros for minimum-width integer constants */
+N#define INT8_C(x)   (x)
+N#define INT16_C(x)  (x)
+N#define INT32_C(x)  (x)
+N#define INT64_C(x)  __ESCAPE__(x ## ll)
+N
+N#define UINT8_C(x)  (x ## u)
+N#define UINT16_C(x) (x ## u)
+N#define UINT32_C(x) (x ## u)
+N#define UINT64_C(x) __ESCAPE__(x ## ull)
+N
+N    /* 7.18.4.2 macros for greatest-width integer constants */
+N#define INTMAX_C(x)  __ESCAPE__(x ## ll)
+N#define UINTMAX_C(x) __ESCAPE__(x ## ull)
+N
+N#endif /* __STDC_CONSTANT_MACROS */
+N
+N    #ifdef __cplusplus
+S         }  /* extern "C" */
+S      }  /* namespace std */
+N    #endif /* __cplusplus */
+N  #endif /* __STDINT_DECLS */
+N
+N  #ifdef __cplusplus
+S    #ifndef __STDINT_NO_EXPORTS
+S      using ::std::int8_t;
+S      using ::std::int16_t;
+S      using ::std::int32_t;
+S      using ::std::int64_t;
+S      using ::std::uint8_t;
+S      using ::std::uint16_t;
+S      using ::std::uint32_t;
+S      using ::std::uint64_t;
+S      using ::std::int_least8_t;
+S      using ::std::int_least16_t;
+S      using ::std::int_least32_t;
+S      using ::std::int_least64_t;
+S      using ::std::uint_least8_t;
+S      using ::std::uint_least16_t;
+S      using ::std::uint_least32_t;
+S      using ::std::uint_least64_t;
+S      using ::std::int_fast8_t;
+S      using ::std::int_fast16_t;
+S      using ::std::int_fast32_t;
+S      using ::std::int_fast64_t;
+S      using ::std::uint_fast8_t;
+S      using ::std::uint_fast16_t;
+S      using ::std::uint_fast32_t;
+S      using ::std::uint_fast64_t;
+S      using ::std::intptr_t;
+S      using ::std::uintptr_t;
+S      using ::std::intmax_t;
+S      using ::std::uintmax_t;
+S    #endif 
+N  #endif /* __cplusplus */
+N
+N#endif /* __stdint_h */
+N
+N/* end of stdint.h */
+N
+N
+N
+L 5 "..\user\des.h" 2
+N
+N//#define BYTE unsigned char
+N
+N//void des(unsigned char *dat, unsigned char *key1, unsigned char mode);
+Nvoid des(uint8_t *datat, uint8_t *keyt, uint8_t encrypt);
+Nvoid tri_des(uint8_t *dat, uint8_t *key1, uint8_t *key2, uint8_t mode);
+Nvoid xor(uint8_t *sourceaddr, uint8_t *targetaddr, int length);
+N
+N#endif
+N
+L 3 "..\user\dukpt.c" 2
+N#include "dukpt.h"
+L 1 "..\user\dukpt.h" 1
+N#ifndef _DUKPT_H_
+N#define _DUKPT_H_
+N
+N#define     uint8_t                   unsigned char
+N//#define     int                  int
+N#define     uint32_t                  unsigned int
+N
+N#define     DUKPT_ERR_UNDEFINED      0       /* Undefined error such as malloc failure, etc */
+N#define     DUKPT_ERR_BADPIN        -1      /* PIN number is invalid */
+N#define     DUKPT_ERR_BADACCT       -2      /* Account number is invalid */
+N#define     DUKPT_ERR_CHECKSUMACCT  -5      /* Account number fails check sum */
+N#define     DUKPT_ERR_BADKEY        -4      /* Invalid Dukpt Key */
+N#define     DUKPT_ERR_BADKSN        -6      /* Invalid Ksn Data */
+N#define     DUKPT_ERR_UNINITIALIZED -7      /* Initial Key not loaded */
+N#define     DUKPT_SUCCESS            1       /* No Error */
+N
+N#define SWAP
+N
+N#define SIZE_KSN_REG        10      // size of key serial number register
+N#define SIZE_KSN_MIN	    10		// min size
+N#define SIZE_KSN_MAX	    20		// max size
+N#define SIZE_ENC_CNTR       3       // size of encryption counter
+N#define SIZE_CRYP_REG       8       // size of crypto register (1 or 2)
+N#define SIZE_PIN_BLK        16      // pin block size
+N#define SIZE_3DES_KEY       16      // 3DES key size
+N#define SIZE_DES_KEY        8       // DES key size
+N#define NUM_FKEY_REG        21		// # of future key registers
+N#define NUM_BITS_EC         21      // # of valid bits in encryption counter
+N
+N#define MAX_EC              0x200000
+N
+N#define BIT_1               (1L << 20)
+N#define BIT_21              (1L <<  0)
+N
+N#define REG_1               0
+N#define REG_21              20
+N
+N#define TRUE				1
+N#define FALSE				0
+N
+Ntypedef  struct
+N{
+N    unsigned char   keytype;
+N    unsigned long   encrypt_ctr;
+N    unsigned char   future_key_reg[NUM_FKEY_REG][SIZE_3DES_KEY + 1];
+X    unsigned char   future_key_reg[21][16 + 1];
+N    unsigned char   initKSN[SIZE_KSN_REG];
+X    unsigned char   initKSN[10];
+N} dukpt_type;
+N
+N//extern dukpt_type	dukpt_key;
+Nextern uint8_t			gkeysize;
+Xextern unsigned char			gkeysize;
+Nextern uint8_t			gfkeyregsize;
+Xextern unsigned char			gfkeyregsize;
+Nextern uint8_t			gLRC;
+Xextern unsigned char			gLRC;
+N
+N#define SWAP
+N
+N#define SIZE_KSN_REG        10      // size of key serial number register
+N#define SIZE_KSN_MIN	    10		// min size
+N#define SIZE_KSN_MAX	    20		// max size
+N#define SIZE_ENC_CNTR       3       // size of encryption counter
+N#define SIZE_CRYP_REG       8       // size of crypto register (1 or 2)
+N#define SIZE_PIN_BLK        16      // pin block size
+N#define SIZE_3DES_KEY       16      // 3DES key size
+N#define SIZE_DES_KEY        8       // DES key size
+N#define NUM_FKEY_REG        21		// # of future key registers
+N#define NUM_BITS_EC         21      // # of valid bits in encryption counter
+N
+Nint  IDT_LoadInitKey(uint8_t isTDEA,uint8_t *pInitKey,uint8_t *pInitKSN);      // init key serial number in binary
+Xint  IDT_LoadInitKey(unsigned char isTDEA,unsigned char *pInitKey,unsigned char *pInitKSN);      
+Nint IDT_EncryptPIN(uint8_t EncryptType,uint32_t encrypt_counter,uint8_t *pCurrKSN,uint8_t *pCurrKey,uint8_t PinKey);// returns encrypted PIN, 16 hex digits
+Xint IDT_EncryptPIN(unsigned char EncryptType,unsigned int encrypt_counter,unsigned char *pCurrKSN,unsigned char *pCurrKey,unsigned char PinKey);
+Nvoid IDT_SpecialDEAEncrypt(uint8_t *cryptoReg,uint8_t *key);
+Xvoid IDT_SpecialDEAEncrypt(unsigned char *cryptoReg,unsigned char *key);
+N
+N
+N
+Nunsigned int IDT_ChangeCounter(uint32_t encCntr, uint8_t onebit);
+Xunsigned int IDT_ChangeCounter(unsigned int encCntr, unsigned char onebit);
+Nint IDT_GetNumOfOnes(uint32_t encCntr);
+Xint IDT_GetNumOfOnes(unsigned int encCntr);
+Nuint8_t IDT_CalcLRC (uint8_t *key);
+Xunsigned char IDT_CalcLRC (unsigned char *key);
+Nvoid IDT_GenNewKeys( uint8_t *cryptoReg,uint32_t shiftReg,int currKeyPtr);
+Xvoid IDT_GenNewKeys( unsigned char *cryptoReg,unsigned int shiftReg,int currKeyPtr);
+Nvoid IDT_NonReversibleKeyGen(uint8_t *cryptoReg,uint8_t *key);             // key register
+Xvoid IDT_NonReversibleKeyGen(unsigned char *cryptoReg,unsigned char *key);             
+Nvoid IDT_PropogateKeys(uint8_t *cryptoReg,uint32_t shiftReg,int currKeyPtr);         // current key pointer
+Xvoid IDT_PropogateKeys(unsigned char *cryptoReg,unsigned int shiftReg,int currKeyPtr);         
+Nvoid IDT_InitCryptoReg(uint8_t *cyptoReg,uint32_t shiftReg,uint8_t *ksnReg);
+Xvoid IDT_InitCryptoReg(unsigned char *cyptoReg,unsigned int shiftReg,unsigned char *ksnReg);
+Nvoid IDT_UpdateKSN(uint32_t encCntr,uint8_t *pKsnReg);
+Xvoid IDT_UpdateKSN(unsigned int encCntr,unsigned char *pKsnReg);
+Nuint32_t IDT_SetBit(uint32_t reg,int pos);
+Xunsigned int IDT_SetBit(unsigned int reg,int pos);
+Nint IDT_GetSetBitPos(uint32_t reg);
+Xint IDT_GetSetBitPos(unsigned int reg);
+N
+N#endif  /* _DUKPT_H_ */
+L 4 "..\user\dukpt.c" 2
+N#include "magdecode.h"
+L 1 "..\user\magdecode.h" 1
+N#ifndef __MAG_DECODE_H
+N#define __MAG_DECODE_H
+N
+N#include <stdint.h>
+N
+N#ifdef AFX_MAG_DECODE_VARIABLES
+S    #define EXTERNMAG 
+N#else
+N    #define EXTERNMAG extern 
+N#endif
+N
+N#define ERRLEVEL 1					//容错的级别，取值范围0、1、2
+N
+N#ifndef	AAMVA_SUPPORT
+N	#define AAMVA_SUPPORT			//AAMVA标准卡支持
+N#endif
+N#ifndef	CADMV_SUPPORT
+N	#define CADMV_SUPPORT			//CADMV标准卡支持
+N#endif
+N#ifndef	JIS_SUPPORT
+N	#define JIS_SUPPORT				//JIS标准卡支持
+N#endif
+N
+N#define TRACK1TIMEFLOWLENGTH 1100
+N#define TRACK2TIMEFLOWLENGTH 500
+N#define TRACK3TIMEFLOWLENGTH 1080
+N#define TRACKBITFLOWLENGTH 800
+N#define TRACKDATALENGTH 110
+N
+Ntypedef struct _TRACKTIMEFLOW 
+N{
+N	uint16_t Value[TRACK1TIMEFLOWLENGTH];
+X	uint16_t Value[1100];
+N	uint16_t Length;
+N}TRACK1TIMEFLOW;
+N
+Ntypedef struct _TRACK2TIMEFLOW 
+N{
+N	uint16_t Value[TRACK2TIMEFLOWLENGTH];
+X	uint16_t Value[500];
+N	uint16_t Length;
+N}TRACK2TIMEFLOW;
+N
+Ntypedef struct _TRACK3TIMEFLOW 
+N{
+N	uint16_t Value[TRACK3TIMEFLOWLENGTH];
+X	uint16_t Value[1080];
+N	uint16_t Length;
+N}TRACK3TIMEFLOW;
+N
+Ntypedef struct _TRACKBITFLOW 
+N{
+N	uint8_t  Value[TRACKBITFLOWLENGTH];
+X	unsigned char  Value[800];
+N	uint16_t Length;
+N}TRACKBITFLOW;
+N
+Ntypedef struct _TRACKDATA 
+N{
+N	uint8_t Value[TRACKDATALENGTH];
+X	unsigned char Value[110];
+N	uint8_t Length;
+X	unsigned char Length;
+N}TRACKDATA;
+N
+NEXTERNMAG TRACK1TIMEFLOW Track1TimeFlow;				//一磁道的原始信号
+Xextern TRACK1TIMEFLOW Track1TimeFlow;				
+NEXTERNMAG TRACK2TIMEFLOW Track2TimeFlow;				//二磁道的原始信号
+Xextern TRACK2TIMEFLOW Track2TimeFlow;				
+NEXTERNMAG TRACK3TIMEFLOW Track3TimeFlow;				//三磁道的原始信号
+Xextern TRACK3TIMEFLOW Track3TimeFlow;				
+N
+NEXTERNMAG TRACKBITFLOW TrackBitFlow;					//解码后的Bit信息
+Xextern TRACKBITFLOW TrackBitFlow;					
+N
+NEXTERNMAG TRACKDATA TempTrackDirtData,TempTrackData;	//临时变量，用作正解和反解的数据
+Xextern TRACKDATA TempTrackDirtData,TempTrackData;	
+NEXTERNMAG TRACKDATA Track1Data,Track2Data,Track3Data;	//解码后的字符信息
+Xextern TRACKDATA Track1Data,Track2Data,Track3Data;	
+N
+N//==============================================================================
+N/*******************************************************************************
+N* Function Name  : MagDecodeTrack
+N* Description    : 磁道脉宽数据解码
+N* Input          : 高4位：1: 一轨解码, 2: 二轨解码, 3: 三轨解码
+N                   低4位：5: 5Bit编码, 6: 6Bit编码, 7: 7Bit编码, 8: 8Bit编码
+N* Output         : None
+N* Return         : 0: 解码成功，1: 解码错,   2: 解码空 
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-23
+N*******************************************************************************/
+NEXTERNMAG uint8_t MagDecodeTrack(uint8_t type);
+Xextern unsigned char MagDecodeTrack(unsigned char type);
+N
+N/*******************************************************************************
+N* Function Name  : FlushBuffer_Init
+N* Description    : The MCU invokes this function to store 3 tracks of F2F signa 
+Nlevel on magnetic strip card by TmrCnt of timer count capture to input buffer 
+Nof TrNo from external input pin.
+N* Input          : None
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG void FlushBuffer_Init (void);
+Xextern void FlushBuffer_Init (void);
+N
+N
+N/*******************************************************************************
+N* Function Name  : SetF2FInputBuffer
+N* Description    : The MCU invokes this function to flush buffer of MSR to a 
+Ndefault value and pointer of Write/Read buffer to a start address.
+N* Input          : TrNo,This parameter indicate track number of 3 tracks of F2F signal.
+N                        0 = track1.
+N                        1 = track2.
+N                        2 = track3.
+N                   TmrCnt,This parameter indicate count value by timer captured.
+N                   level,This parameter indicate a input pin of 3 tracks of F2F signal level.
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG void SetF2FInputBuffer (unsigned char TrNo, unsigned short int TmrCnt, unsigned char level);
+Xextern void SetF2FInputBuffer (unsigned char TrNo, unsigned short int TmrCnt, unsigned char level);
+N
+N/*******************************************************************************
+N* Function Name  : MSR_Check_Sync_Pattern
+N* Description    : The MCU invokes this function to check first pattern of 
+Nsynchronize and wait for 3 tracks of F2F signal finish.
+N* Input          : None
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG void MSR_Check_Sync_Pattern (void);
+Xextern void MSR_Check_Sync_Pattern (void);
+N
+N/*******************************************************************************
+N* Function Name  : MSR_F2F_Decoder
+N* Description    : The MCU invokes this function to translate 3 tracks of F2F 
+Nsignal to a bit data by Weltrend algorithm.
+N* Input          : None
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG void MSR_F2F_Decoder (void);
+Xextern void MSR_F2F_Decoder (void);
+N
+N/*******************************************************************************
+N* Function Name  : MSR_Character_Decoder
+N* Description    : The MCU invokes this function to translate 3 tracks of F2F 
+Nbit data to a character of ISO or JIS format.
+N* Input          : None
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG void MSR_Character_Decoder (void);
+Xextern void MSR_Character_Decoder (void);
+N
+N/*******************************************************************************
+N* Function Name  : GetMSR_CardDataForUART
+N* Description    : The MCU invokes this function to get 3 tracks of MSR character 
+Ndata sequentially from 1'st track to 3'rd track with byte format.
+N* Input          : None
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG unsigned char GetMSR_CardDataForUART (void);
+Xextern unsigned char GetMSR_CardDataForUART (void);
+N
+N/*******************************************************************************
+N* Function Name  : MSR_WaitForReady
+N* Description    : The MCU invokes this function to wait for 3 tracks of character 
+Ndata to fetch complete, sequentially. When you have call function of 
+NGetMSR_CardDataForUART to send out data by UART.
+N* Input          : None
+N* Output         : None
+N* Return         : None
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-08
+N*******************************************************************************/
+NEXTERNMAG void MSR_WaitForReady (void);
+Xextern void MSR_WaitForReady (void);
+N
+N/*******************************************************************************
+N* Function Name  : MSR_GetCharacterDataOn
+N* Description    : The MCU invokes this function to get 3 tracks of character 
+Ndata by TrNo to a buffer pointer of *pBuf, the buffer size is limited by length.
+N* Input          : TrNo,This parameter indicate track number of 3 tracks of F2F signal.
+N                        0 = track1.
+N                        1 = track2.
+N                        2 = track3.
+N                   pBuf,This parameter indicate a buffer pointer, the character data well copy to here.
+N                   length,This parameter indicate a buffer size.
+N* Output         : None
+N* Return         : 0: success.  -1: error.  -2: none.  -3: parameter error. 
+N* Author		 : Jery Ouyang
+N* Date			 : 2017-03-23
+N*******************************************************************************/
+NEXTERNMAG int MSR_GetCharacterDataOn (unsigned char TrNo, unsigned char *pBuf, unsigned char length);
+Xextern int MSR_GetCharacterDataOn (unsigned char TrNo, unsigned char *pBuf, unsigned char length);
+N
+N
+N#endif
+N
+N
+L 5 "..\user\dukpt.c" 2
+N
+N//dukpt_type  dukpt_key  __attribute__((at(Track3TimeFlow.Value)));
+N#define dukpt_key ((dukpt_type *)Track3TimeFlow.Value)
+N//dukpt_type dukpt_key = ((dukpt_type *)Track3TimeFlow.Value);
+Nuint8_t gkeysize;					
+Xunsigned char gkeysize;					
+Nuint8_t gfkeyregsize;
+Xunsigned char gfkeyregsize;
+Nuint8_t gLRC;
+Xunsigned char gLRC;
+N
+N//-----------------------------------------------------------------------------
+N// IDT_LoadInitKey:
+N// Initialize key serial number register with initial KSN value and 0 initial
+N// encryption counter value. Populate future key registers using the initial
+N// key.
+N// Note: values are passed to IDT_xxx routines in binary, with each byte
+N// containing 2 hex digit.
+N//-----------------------------------------------------------------------------
+Nint IDT_LoadInitKey(uint8_t isTDEA,         // indicate whether the key is single or double-length
+Xint IDT_LoadInitKey(unsigned char isTDEA,         
+N                    uint8_t *pInitKey,      // init key in binary
+X                    unsigned char *pInitKey,      
+N                    uint8_t *pInitKSN)      // init key serial number in binary
+X                    unsigned char *pInitKSN)      
+N{
+N    uint32_t  i;
+X    unsigned int  i;
+N    uint32_t  currKeyPtr;         // current key pointer
+X    unsigned int  currKeyPtr;         
+N    uint8_t   cryptoReg[SIZE_PIN_BLK] = {0};  // crypto register
+X    unsigned char   cryptoReg[16] = {0};  
+N
+N    // Set global flag whether we will be doing single DES or triple DES.
+N
+N    if (isTDEA) {
+N        gkeysize = SIZE_3DES_KEY;
+X        gkeysize = 16;
+N        gfkeyregsize = SIZE_3DES_KEY + 1;   // key size + 1 byte of LRC
+X        gfkeyregsize = 16 + 1;   
+N        gLRC = SIZE_3DES_KEY;               // LRC byte follows the key
+X        gLRC = 16;               
+N    }
+N    else {
+N        gkeysize = SIZE_DES_KEY;
+X        gkeysize = 8;
+N        gfkeyregsize = SIZE_DES_KEY + 1;    // key size + 1 byte of LRC
+X        gfkeyregsize = 8 + 1;    
+N        gLRC = SIZE_DES_KEY;                // LRC byte follows the key
+X        gLRC = 8;                
+N    }
+N
+N    // Init all future key registers to zeros
+N    for (i = 0; i < NUM_FKEY_REG; i++)  memset(dukpt_key->future_key_reg[i], 0, (SIZE_3DES_KEY + 1));
+X    for (i = 0; i < 21; i++)  memset(((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[i], 0, (16 + 1));
+N
+N    // clear encryption counter
+N    dukpt_key->encrypt_ctr = 0;
+X    ((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr = 0;
+N    // put address of key Reg #21 in CKP
+N    currKeyPtr = REG_21;
+X    currKeyPtr = 20;
+N    // store initial key in future key reg #21
+N    memcpy(dukpt_key->future_key_reg[currKeyPtr], pInitKey, gkeysize);
+X    memcpy(((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr], pInitKey, gkeysize);
+N    // copy initial key serial number to key serial num reg
+N    memcpy(dukpt_key->initKSN, pInitKSN, SIZE_KSN_REG);
+X    memcpy(((dukpt_type *)Track3TimeFlow . Value)->initKSN, pInitKSN, 10);
+N    // update counter in key serial num reg
+N    IDT_UpdateKSN(dukpt_key->encrypt_ctr, dukpt_key->initKSN);
+X    IDT_UpdateKSN(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr, ((dukpt_type *)Track3TimeFlow . Value)->initKSN);
+N    // generate new keys, setting bit #1 in shift reg
+N    IDT_PropogateKeys(cryptoReg, BIT_1, currKeyPtr);
+X    IDT_PropogateKeys(cryptoReg, (1L << 20), currKeyPtr);
+N    // clear current key pointed to
+N//    memset(dukpt_key->future_key_reg[currKeyPtr], 0, (SIZE_3DES_KEY + 1));
+N    // set LRC to invalid value
+N//    dukpt_key->future_key_reg[currKeyPtr][gLRC] = 0xff;
+N    // increment encryption counter
+N    dukpt_key->encrypt_ctr++;
+X    ((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr++;
+N    // update counter in key serial num
+N    IDT_UpdateKSN(dukpt_key->encrypt_ctr, dukpt_key->initKSN);
+X    IDT_UpdateKSN(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr, ((dukpt_type *)Track3TimeFlow . Value)->initKSN);
+N
+N    return DUKPT_SUCCESS;
+X    return 1;
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_EncryptPIN:
+N// Encrypt the PIN block which is created by XOR the PIN number and account
+N// number by using the DUKPT algorithm. After the encryption is performed,
+N// a new set of future keys are created and the key used for encryption is
+N// deleted.
+N// This function take 2 inputs, a PIN and account number.
+N// Plain text PINs have the following structure:
+N// 1---5---9---13--17--21--25--29--33--37--41--45--49--53--57--61---
+N// | C | N | P | P | P | P | PF| PF| PF| PF| PF| PF| PF| PF| F | F |
+N// -----------------------------------------------------------------
+N// Where    C => Control field. 0000.
+N//          N => PIN Length: [0100..1100] (4 to 12)
+N//          P => PIN Digit [0000..1001] (1 to 9)
+N//          PF=> PIN Digit or Fill digit, according to length
+N//          F => Fill Digit. 1111.
+N// For example, given a PIN of 1234, the input to pPIN should be:
+N//     0x04, 0x12, 0x34, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
+N// Primary Account Numbers have the following Structure:
+N// 1---5---9---13--17--21--25--29--33--37--41--45--49--53--57--61---
+N// | 0 | 0 | 0 | 0 | A1| A2| A3| A4| A5| A6| A7| A8| A9|A10|A11|A12|
+N// -----------------------------------------------------------------
+N// Where    0 => Pad Digit. 0000.
+N//          An=> Primary Account number. The twelve rightmost digits
+N//               of the primary account number excluding the check digit,
+N//               which is the last digit.
+N//
+N// For example, given an account number of 401234567890, the input to pAcctNum
+N// should be:
+N//    0x00, 0x00, 0x40, 0x12, 0x34, 0x56, 0x78, 0x90.
+N// The current value of KSN is returned in pCurrKSN, while the encrypted PIN
+N// is returned in pCiphorPin.
+N//-----------------------------------------------------------------------------
+Nint IDT_EncryptPIN(uint8_t EncryptType,
+Xint IDT_EncryptPIN(unsigned char EncryptType,
+N							  uint32_t encrypt_counter,
+X							  unsigned int encrypt_counter,
+N                uint8_t *pCurrKSN,            // returns the 10-byte KSN
+X                unsigned char *pCurrKSN,            
+N                uint8_t *pCurrKey,			  		// returns encrypted PIN, 16 hex digits
+X                unsigned char *pCurrKey,			  		
+N				uint8_t PinKey)			      // returns encrypted PIN, 16 hex digits
+X				unsigned char PinKey)			      
+N{
+N    int   position;                   // position of right most set bit
+N    int   currKeyPtr;                 // current key pointer
+N    uint32_t   shiftReg = 0;               // shift register: 21-bit reg, whose bits are
+X    unsigned int   shiftReg = 0;               
+N                                        // numbered left to right as #1 to #21.
+N
+N    //uint8_t   currKey[SIZE_3DES_KEY];     // current key used to encrypt
+N    uint8_t   cryptoReg[SIZE_PIN_BLK] = {0};    // crypto register
+X    unsigned char   cryptoReg[16] = {0};    
+N
+N    if (dukpt_key->encrypt_ctr > MAX_EC)
+X    if (((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr > 0x200000)
+N        return(DUKPT_ERR_UNINITIALIZED);
+X        return(-7);
+N
+N    //Copy pinblock into crypto reg
+N    //memcpy(cryptoReg, pPinBlock, SIZE_CRYP_REG);
+N
+N    // Get a valid key
+N    while (TRUE)
+X    while (1)
+N    // While LRC of current key is not valid
+N    {
+N    
+N        // Find position of right most set bit in encryption counter
+N        position = IDT_GetSetBitPos(encrypt_counter);
+N        // set the corresponding bit in shift reg
+N        shiftReg = IDT_SetBit(shiftReg, position);
+N    
+N        // set current key pointer
+N        currKeyPtr = position;
+N        // Get key pointed by the current key pointer
+N        memcpy (pCurrKey, dukpt_key->future_key_reg[currKeyPtr], gkeysize);
+X        memcpy (pCurrKey, ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr], gkeysize);
+N        // Check if LRC key valid
+N        if (dukpt_key->future_key_reg[currKeyPtr][gLRC] == IDT_CalcLRC(pCurrKey))
+X        if (((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr][gLRC] == IDT_CalcLRC(pCurrKey))
+N            // OK, we've found a valid key
+N            break;
+N        else
+N        {
+N            // Nope, add shift reg to encryption counter and continue
+N            dukpt_key->encrypt_ctr += shiftReg;
+X            ((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr += shiftReg;
+N        }
+N    }
+N
+N	dukpt_key->encrypt_ctr = encrypt_counter;
+X	((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr = encrypt_counter;
+N
+N    // Update counter in key serial num
+N    IDT_UpdateKSN(dukpt_key->encrypt_ctr, dukpt_key->initKSN);
+X    IDT_UpdateKSN(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr, ((dukpt_type *)Track3TimeFlow . Value)->initKSN);
+N
+N	if(PinKey == 1)
+N	{
+N		if (EncryptType) 
+N		{
+N			 // Now produce a variant of the key by XORing the
+N			 // key with 0000 0000 0000 00FF 0000 0000 0000 00FF
+N			 pCurrKey[SIZE_3DES_KEY - 1] ^= 0xFF;
+X			 pCurrKey[16 - 1] ^= 0xFF;
+N			 pCurrKey[(SIZE_3DES_KEY / 2) - 1] ^= 0xFF;
+X			 pCurrKey[(16 / 2) - 1] ^= 0xFF;
+N		}
+N		else 
+N		{
+N				pCurrKey[SIZE_DES_KEY-1] ^= 0xFF;
+X				pCurrKey[8-1] ^= 0xFF;
+N		}
+N	}
+N
+N
+N	else if(PinKey == 0) // Data Key
+N	{
+N	   uint8_t key[SIZE_3DES_KEY]; 
+X	   unsigned char key[16]; 
+N	   uint8_t i;
+X	   unsigned char i;
+N		if (EncryptType)
+N		{ // If 1, TDES
+N			 // Now produce a variant of the key by XORing the key with 0000 0000 00FF 0000 0000 0000 00FF 0000
+N			 pCurrKey[SIZE_3DES_KEY - 3] ^= 0xFF;
+X			 pCurrKey[16 - 3] ^= 0xFF;
+N			 pCurrKey[(SIZE_3DES_KEY >> 1) - 3] ^= 0xFF;
+X			 pCurrKey[(16 >> 1) - 3] ^= 0xFF;
+N			 for(i = 0; i < SIZE_3DES_KEY; i++)
+X			 for(i = 0; i < 16; i++)
+N				 key[i] = pCurrKey[i];
+N			
+N			 tri_des(pCurrKey,key,key+8,0);
+N			 tri_des(pCurrKey+8,key,key+8,0);
+N		}
+N		else
+N		{ // If 0, Single DES
+N			pCurrKey[SIZE_DES_KEY - 3] ^= 0xFF; // Only 8 bits
+X			pCurrKey[8 - 3] ^= 0xFF; 
+N			for(i = 0; i < SIZE_DES_KEY; i++)
+X			for(i = 0; i < 8; i++)
+N				key[i] = pCurrKey[i];
+N        
+N			des(pCurrKey, key,0);   //single encryption
+N		}
+N	}
+N
+N	else if(PinKey == 2) // MAC
+N	{
+N		if (EncryptType) 
+N		{
+N			 // Now produce a variant of the key by XORing the
+N			 // key with 0000 0000 0000 00FF 0000 0000 0000 00FF
+N			 pCurrKey[SIZE_3DES_KEY - 2] ^= 0xFF;
+X			 pCurrKey[16 - 2] ^= 0xFF;
+N			 pCurrKey[(SIZE_3DES_KEY / 2) - 2] ^= 0xFF;
+X			 pCurrKey[(16 / 2) - 2] ^= 0xFF;
+N		}
+N		else 
+N		{
+N				pCurrKey[SIZE_DES_KEY-2] ^= 0xFF;
+X				pCurrKey[8-2] ^= 0xFF;
+N		}
+N	}
+N
+N    // Return the current KSN
+N    memcpy(pCurrKSN, dukpt_key->initKSN, SIZE_KSN_REG);
+X    memcpy(pCurrKSN, ((dukpt_type *)Track3TimeFlow . Value)->initKSN, 10);
+N    // Return the encrypted ciphor test PIN
+N    //memcpy(pCiphorPin, cryptoReg, SIZE_CRYP_REG);
+N
+N    // Generate new future keys and delete current encrypt key
+N    IDT_GenNewKeys(cryptoReg, shiftReg, currKeyPtr);
+N//    dukpt_key = init_dukpt_key();
+N//    save_dukpt_key(dukpt_key);
+N
+N    return(DUKPT_SUCCESS);
+X    return(1);
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_GenNewKeys:
+N// Generate new future keys.
+N//-----------------------------------------------------------------------------
+Nvoid IDT_GenNewKeys(uint8_t *cryptoReg,
+Xvoid IDT_GenNewKeys(unsigned char *cryptoReg,
+N                    uint32_t shiftReg,
+X                    unsigned int shiftReg,
+N                    int currKeyPtr)
+N{
+N    // if the number of 1 bits in encryption counter is less than 10
+N    if (IDT_GetNumOfOnes(dukpt_key->encrypt_ctr) < 10)
+X    if (IDT_GetNumOfOnes(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr) < 10)
+N    {
+N        // Generating new keys:
+N        // new keys are generated by performing 3DES encryption using the current
+N        // key on the KSN whose encryption counter contains the same bit pattern
+N        // less the right most "1" bit:
+N
+N        // Generate a set of new keys
+N        shiftReg >>= 1;
+N        IDT_PropogateKeys(cryptoReg, shiftReg, currKeyPtr);
+N        // Erase current key from memory
+N        memset(dukpt_key->future_key_reg[currKeyPtr], 0, (SIZE_3DES_KEY + 1));
+X        memset(((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr], 0, (16 + 1));
+N        dukpt_key->future_key_reg[currKeyPtr][gLRC] = 0xff;
+X        ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr][gLRC] = 0xff;
+N        // Increment encryption counter and update it in key serial num register
+N        dukpt_key->encrypt_ctr++;
+X        ((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr++;
+N        IDT_UpdateKSN(dukpt_key->encrypt_ctr, dukpt_key->initKSN);
+X        IDT_UpdateKSN(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr, ((dukpt_type *)Track3TimeFlow . Value)->initKSN);
+N    }
+N    else
+N    {
+N        // Erase current key from memory
+N        memset(dukpt_key->future_key_reg[currKeyPtr], 0, (SIZE_3DES_KEY + 1));
+X        memset(((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr], 0, (16 + 1));
+N        dukpt_key->future_key_reg[currKeyPtr][gLRC] = 0xff;        // set LRC to invalid value
+X        ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr][gLRC] = 0xff;        
+N
+N        // Increment encryption counter and update it in key serial num register
+N        dukpt_key->encrypt_ctr += shiftReg;
+X        ((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr += shiftReg;
+N        IDT_UpdateKSN(dukpt_key->encrypt_ctr, dukpt_key->initKSN);
+X        IDT_UpdateKSN(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr, ((dukpt_type *)Track3TimeFlow . Value)->initKSN);
+N    }
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_SpecialDEAEncrypt
+N//
+N// input: 8byte clear text PIN
+N//
+N// output: 8Byte Encrypted PIN
+N//
+N// Dukpt algorithm defines a "special encrypt routine" which
+N// treats the key not as a 56-bit key with parity but a
+N// 64-bit key. To achieve an added level of security the key
+N// itself is xor'ed into the pinblock before and after the
+N// dea encryption.
+N//
+N//-----------------------------------------------------------------------------
+Nvoid IDT_SpecialDEAEncrypt(uint8_t *cryptoReg,uint8_t *key)
+Xvoid IDT_SpecialDEAEncrypt(unsigned char *cryptoReg,unsigned char *key)
+N{
+N    xor(cryptoReg, key, SIZE_PIN_BLK);
+X    xor(cryptoReg, key, 16);
+N    des(cryptoReg, key, 0);   //single encryption
+N    xor(cryptoReg, key, SIZE_PIN_BLK);
+X    xor(cryptoReg, key, 16);
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_GetSetBitPos
+N// Return the position of least significant set bit in the 21-bit encryption
+N// counter.
+N// Note: the position of a bit is counted from left to right, so bit 0 has a
+N// position of 20, while bit 20 has a position of 20.
+N//-----------------------------------------------------------------------------
+Nint IDT_GetSetBitPos(uint32_t reg)    // curent value of register
+Xint IDT_GetSetBitPos(unsigned int reg)    
+N{
+N    uint32_t   pos;    // position of set bit
+X    unsigned int   pos;    
+N    uint32_t   mask;   // running mask of set bit
+X    unsigned int   mask;   
+N
+N    // Run the bit mask from right to left until we hit a set bit
+N    for (pos = 0, mask = 0x01; pos < NUM_BITS_EC; pos++, mask <<= 1)
+X    for (pos = 0, mask = 0x01; pos < 21; pos++, mask <<= 1)
+N    {
+N        if (reg & mask)
+N            break;
+N    }
+N
+N    return((NUM_BITS_EC - 1) - pos);
+X    return((21 - 1) - pos);
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_SetBit
+N// Sets bit in the 21 bit register reg accoring to pos.
+N// Note: the position of a bit is counted from left to right, so bit 0 has a
+N// position of 20, while bit 20 has a position of 20.
+N//-----------------------------------------------------------------------------
+Nuint32_t IDT_SetBit(uint32_t reg,int pos)
+Xunsigned int IDT_SetBit(unsigned int reg,int pos)
+N{
+N    return (reg |= 1L << ((NUM_BITS_EC - 1) - pos));
+X    return (reg |= 1L << ((21 - 1) - pos));
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_CalcLRC
+N// Calc the LRC of key.
+N//-----------------------------------------------------------------------------
+Nuint8_t IDT_CalcLRC(uint8_t *key)
+Xunsigned char IDT_CalcLRC(unsigned char *key)
+N{
+N    uint32_t     i;
+X    unsigned int     i;
+N    uint8_t   aLRC;
+X    unsigned char   aLRC;
+N
+N    aLRC = *key;                                // set LRC to 1st byte of key
+N    key++;                                      // increment key
+N    for (i = 0; i < (gkeysize) - 1; i++, key++)
+N    {
+N        aLRC ^= *key;                           // XOR key with LRC
+N    }
+N    return aLRC;
+N}
+N
+N//-----------------------------------------------------------------------------
+N//  IDT_UpdateKSN:
+N//  Update the key serial number register (KSN) with the current value of the
+N//  encryption counter. Note that the left-most 59 bits of the KSN are the
+N//  59 right-most bits of the initial serial number itself, and the 21
+N//  rightmost bits of KSN are the curent value of encryption counter.
+N//-----------------------------------------------------------------------------
+Nvoid IDT_UpdateKSN(uint32_t encCntr,uint8_t *pKsnReg)
+Xvoid IDT_UpdateKSN(unsigned int encCntr,unsigned char *pKsnReg)
+N{
+N    pKsnReg[9] = (uint8_t)(encCntr & 0xFF);
+X    pKsnReg[9] = (unsigned char)(encCntr & 0xFF);
+N    pKsnReg[8] = (uint8_t)((encCntr >> 8) & 0xFF);
+X    pKsnReg[8] = (unsigned char)((encCntr >> 8) & 0xFF);
+N    pKsnReg[7] = (pKsnReg[7] & 0xE0) | (uint8_t)((encCntr >> 16) & 0xFF);
+X    pKsnReg[7] = (pKsnReg[7] & 0xE0) | (unsigned char)((encCntr >> 16) & 0xFF);
+N}
+N
+N//-----------------------------------------------------------------------------
+N//  IDT_GetNumOfOnes
+N//  Return the number of ones in the encryption counter.
+N//-----------------------------------------------------------------------------
+Nint IDT_GetNumOfOnes(uint32_t encCntr)
+Xint IDT_GetNumOfOnes(unsigned int encCntr)
+N{
+N    int i,numOfOnes = 0;
+N    uint32_t mask;
+X    unsigned int mask;
+N
+N    // For each bit in encryption counter
+N    for (i = 0, mask = 0x01; i < 21; i++, mask <<= 1)
+N    {
+N        if (encCntr & mask)
+N            numOfOnes++;
+N    }
+N
+N    return(numOfOnes);
+N}
+N
+N//-----------------------------------------------------------------------------
+N//  IDT_ChangeCounter
+N//  Return the number of ones in the encryption counter.
+N//-----------------------------------------------------------------------------
+Nunsigned int IDT_ChangeCounter(uint32_t encCntr, uint8_t onebit)
+Xunsigned int IDT_ChangeCounter(unsigned int encCntr, unsigned char onebit)
+N{
+N    uint8_t    i, numOfOnes = 0;
+X    unsigned char    i, numOfOnes = 0;
+N    uint32_t   mask, tmp_mask;
+X    unsigned int   mask, tmp_mask;
+N
+N    // For each bit in encryption counter
+N    for (i = 0, mask = 0x100000, tmp_mask = 0x100000; (numOfOnes < onebit)&&(i < 21); i++)
+N    {
+N		if(i!=0)
+N		{
+N            mask >>= 1;
+N	    	tmp_mask += mask;
+N		}
+N        if (encCntr & mask)
+N            numOfOnes++;	
+N    }
+N
+N	encCntr &= tmp_mask;
+N
+N    return(encCntr);
+N}
+N//-----------------------------------------------------------------------------
+N//  IDT_InitCryptoReg
+N//  Initialize the crypto reg by or'ing
+N//  the rightmost 64 bits of the ksn with the shift counter.
+N//-----------------------------------------------------------------------------
+Nvoid IDT_InitCryptoReg(uint8_t *cyptoReg,uint32_t shiftReg,uint8_t *ksnReg)
+Xvoid IDT_InitCryptoReg(unsigned char *cyptoReg,unsigned int shiftReg,unsigned char *ksnReg)
+N{
+N    uint32_t     i;
+X    unsigned int     i;
+N    uint8_t   buf1[SIZE_CRYP_REG] = {0};
+X    unsigned char   buf1[8] = {0};
+N    uint8_t   buf2[SIZE_CRYP_REG] = {0};
+X    unsigned char   buf2[8] = {0};
+N
+N    // Put the value of shift reg into the right most 3 bytes of temp buf 1
+N    for (i = 0; i < 3; i++) {
+N        buf1[(SIZE_CRYP_REG - 1) - i] =
+X        buf1[(8 - 1) - i] =
+N            (uint8_t)((shiftReg >> (8 * i)) & 0xFF);;
+X            (unsigned char)((shiftReg >> (8 * i)) & 0xFF);;
+N    }
+N
+N    // Put the right 8 bytes of key serial num into temp buf 2
+N    memcpy(buf2, (ksnReg + 2), SIZE_CRYP_REG);
+X    memcpy(buf2, (ksnReg + 2), 8);
+N
+N    // OR them togather
+N    for (i = 0; i < SIZE_CRYP_REG; i++) {
+X    for (i = 0; i < 8; i++) {
+N        cyptoReg[i] = buf1[i] | buf2[i];
+N    }
+N}
+N
+N//-----------------------------------------------------------------------------
+N//  IDT_PropogateKeys
+N//  Generate descendent keys of a particular key.
+N//-----------------------------------------------------------------------------
+Nvoid IDT_PropogateKeys(uint8_t *cryptoReg,          // crypto register
+Xvoid IDT_PropogateKeys(unsigned char *cryptoReg,          
+N                       uint32_t shiftReg,           // shift register
+X                       unsigned int shiftReg,           
+N                       int currKeyPtr)         // current key pointer
+N{
+N    int  posSR, posEC;
+N    uint8_t   *cr1, *cr2;
+X    unsigned char   *cr1, *cr2;
+N    uint8_t   *fkeyRegL, *fkeyRegR;
+X    unsigned char   *fkeyRegL, *fkeyRegR;
+N    uint8_t   swap1, swap2;
+X    unsigned char   swap1, swap2;
+N
+N    cr1 = cryptoReg;
+N    cr2 = cryptoReg + SIZE_CRYP_REG;
+X    cr2 = cryptoReg + 8;
+N
+N    while (shiftReg)                     // do while shift reg no zero
+N    {
+N        // Init cyrpto reg by ORing lower 64 bits of KSN with shift reg
+N        IDT_InitCryptoReg(cryptoReg, shiftReg, dukpt_key->initKSN);
+X        IDT_InitCryptoReg(cryptoReg, shiftReg, ((dukpt_type *)Track3TimeFlow . Value)->initKSN);
+N
+N#ifdef DBG
+S        if (debug) {
+S            if (outFile)
+S                fprintf(fp, "EC = %02X%02X%02X ",
+S                        cryptoReg[5] & 0x1F, cryptoReg[6], cryptoReg[7]);
+S            else
+S                printf("EC = %02X%02X%02X ",
+S                       cryptoReg[5] & 0x1F, cryptoReg[6], cryptoReg[7]);
+S        }
+N#endif // DBG
+N
+N        // find position of least significant set bit in shift reg
+N        posSR = IDT_GetSetBitPos(shiftReg);
+N        swap1 = posSR % 2;
+N        fkeyRegL = dukpt_key->future_key_reg[posSR];
+X        fkeyRegL = ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[posSR];
+N        fkeyRegR = fkeyRegL + SIZE_CRYP_REG;
+X        fkeyRegR = fkeyRegL + 8;
+N
+N //       if (dukpt_key->keytype) {
+N		if (1)
+N		{
+N		
+N            // if we use double length key, geneate a new double length key using
+N            // this folloiwng call:
+N            IDT_NonReversibleKeyGen(cryptoReg, dukpt_key->future_key_reg[currKeyPtr]);
+X            IDT_NonReversibleKeyGen(cryptoReg, ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr]);
+N
+N#ifdef SWAP
+N            // find position of least significant set bit in encryption counter
+N            posEC = IDT_GetSetBitPos(dukpt_key->encrypt_ctr);
+X            posEC = IDT_GetSetBitPos(((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr);
+N            swap2 = posEC % 2;
+N            if (dukpt_key->encrypt_ctr)
+X            if (((dukpt_type *)Track3TimeFlow . Value)->encrypt_ctr)
+N                swap2 ^= 1;
+N            else
+N                swap2 = 0;
+N
+N            if (swap2)
+N                swap1 ^= 1;
+N
+N            if (swap1) {
+N                // HACK: swap upper and lower 8 bytes
+N                memcpy(fkeyRegR, cr1, SIZE_CRYP_REG);
+X                memcpy(fkeyRegR, cr1, 8);
+N                memcpy(fkeyRegL, cr2, SIZE_CRYP_REG);
+X                memcpy(fkeyRegL, cr2, 8);
+N            }
+N            else {
+N                // copy new key into future key reg pointed by this position
+N                memcpy(dukpt_key->future_key_reg[posSR], cryptoReg, gkeysize);
+X                memcpy(((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[posSR], cryptoReg, gkeysize);
+N            }
+N#else
+S            // copy new key into the future key reg pointed by this position
+S            memcpy(dukpt_key->future_key_reg[posSR], cryptoReg, gkeysize);
+N#endif
+N
+N        }
+N        else {
+N            // if we use single length key, generate a new single length key
+N            // using the follwing call which use all 64-bit when generating
+N            // key
+N            IDT_SpecialDEAEncrypt(cryptoReg, dukpt_key->future_key_reg[currKeyPtr]);
+X            IDT_SpecialDEAEncrypt(cryptoReg, ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[currKeyPtr]);
+N            // copy new key into the future key reg pointed by this position
+N            memcpy(dukpt_key->future_key_reg[posSR], cryptoReg, gkeysize);
+X            memcpy(((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[posSR], cryptoReg, gkeysize);
+N        }
+N
+N        // calc LRC and store with new key
+N        dukpt_key->future_key_reg[posSR][gLRC] = IDT_CalcLRC(cryptoReg);
+X        ((dukpt_type *)Track3TimeFlow . Value)->future_key_reg[posSR][gLRC] = IDT_CalcLRC(cryptoReg);
+N
+N        // shift sr right 1 bit
+N        shiftReg >>= 1;
+N    }
+N}
+N
+N//-----------------------------------------------------------------------------
+N// IDT_NonReversibleKeyGen:
+N// Generate a new double-length key .
+N// Input:
+N// --cyrpto reg contains 16-byte data to be encrypted.
+N// --key reg contains the double length key used for encryption.
+N// Output:
+N// --crypto reg contains newly generate double length key.
+N// CR-1: crypto reg 1 (8 bytes)
+N// CR-2: crypto reg 2 (8 bytes)
+N// KR-L: left half of key reg
+N// KR-R: right half of key reg
+N// DEAen(data, key): apply DEA encryption on "data" using "key"
+N// DEAde(data, key): apply DEA decryption on "data" using "key"
+N//-----------------------------------------------------------------------------
+Nvoid IDT_NonReversibleKeyGen(uint8_t *cryptoReg,       // crypto register
+Xvoid IDT_NonReversibleKeyGen(unsigned char *cryptoReg,       
+N                             uint8_t *key)             // key register
+X                             unsigned char *key)             
+N{
+N    uint8_t *cr1, *cr2;
+X    unsigned char *cr1, *cr2;
+N    uint8_t *keyL, *keyR;
+X    unsigned char *keyL, *keyR;
+N    uint8_t cArray[] = {
+X    unsigned char cArray[] = {
+N        0xc0, 0xc0, 0xc0, 0xc0,
+N        0x00, 0x00, 0x00, 0x00,
+N        0xc0, 0xc0, 0xc0, 0xc0,
+N        0x00, 0x00, 0x00, 0x00
+N    };
+N
+N    cr1 = cryptoReg;
+N    cr2 = cryptoReg + SIZE_CRYP_REG;
+X    cr2 = cryptoReg + 8;
+N    keyL = key;
+N    keyR = key + SIZE_CRYP_REG;
+X    keyR = key + 8;
+N
+N    // CR-2 = CR-1 xor KR-R
+N    memcpy(cr2, cr1, SIZE_CRYP_REG);       // copy content of CR-1 to CR-2
+X    memcpy(cr2, cr1, 8);       
+N    xor(cr2, keyR, SIZE_CRYP_REG);
+X    xor(cr2, keyR, 8);
+N    // CR-2 = DEAen(CR-2, KR-L)
+N
+N//    encrypt(SIZE_CRYP_REG, cr2, keyL);
+N    des(cr2, keyL,0);   //single encryption
+N
+N    // CR-2 = CR-2 xor KR-R
+N    xor(cr2, keyR, SIZE_CRYP_REG);
+X    xor(cr2, keyR, 8);
+N    // KR = KR xor c0c0 c0c0 0000 0000 c0c0 c0c0 0000 0000
+N    xor(key, cArray, SIZE_3DES_KEY);
+X    xor(key, cArray, 16);
+N    // CR-1 = CR-1 xor KR-R
+N    xor(cr1, keyR, SIZE_CRYP_REG);
+X    xor(cr1, keyR, 8);
+N    // CR-1 = DEAen(CR-1, KR-L)
+N
+N//    encrypt(SIZE_CRYP_REG, cr1, keyL);
+N    des(cr1, keyL,0);   //single encryption
+N    // CR-1 = CR-1 xor KR-R
+N    xor(cr1, keyR, SIZE_CRYP_REG);
+X    xor(cr1, keyR, 8);
+N}
+N

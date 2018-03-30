@@ -1,0 +1,8 @@
+---- Track2TimeFlow.Value Matches (7 in 2 files) ----
+magdecode.c (user):		lpInTimeFlowValue = Track2TimeFlow.Value;
+magdecode.c (user):		lpInTimeFlowValue = Track2TimeFlow.Value;
+magdecode.c (user):		lpInTimeFlowValue = Track2TimeFlow.Value;
+magdecode.c (user):			case 1:Track2TimeFlow.Value[Track2TimeFlow.Length++] = TmrCnt; break;
+stm32f10x_it.c (dev):				//Track2TimeFlow.Value[Track2TimeFlow.Length++]  = (TM2ReadValue2 - TM2ReadValue1); 
+stm32f10x_it.c (dev):				//Track2TimeFlow.Value[Track2TimeFlow.Length++]  = ((0xFFFF - TM2ReadValue1) + TM2ReadValue2); 
+stm32f10x_it.c (dev):			_input_12bit_data(Track2TimeFlow.Value, Track2TimeFlow.Length, ((TM2ReadValue1 + 0x10000) - TM2ReadValue2) % (0x10000));
