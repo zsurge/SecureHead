@@ -1,6 +1,5 @@
----- uart_puts Matches (5 in 3 files) ----
-dev_uart.c (dev):void uart_puts(char *s)
-dev_uart.h (dev):void uart_puts(char *s);
-main.c (user):	uart_puts("iap init...\r\n");  
-main.c (user):        uart_puts("Jump To Application\r\n");	        
-main.c (user):        uart_puts("iap is start\r\n");
+---- calc_sum Matches (4 in 1 files) ----
+iap.c (user):	unsigned char calc_sum = 0;
+iap.c (user):				calc_sum = 0;
+iap.c (user):						calc_sum ^= * (pBuff + pos);
+iap.c (user):				if (calc_sum == get_sum)

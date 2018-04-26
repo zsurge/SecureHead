@@ -25,6 +25,7 @@
 #include "usbd_std.h"
 #include "custom_hid_core.h"
 #include "usb_endp.h"
+#include "dev_msread.h"
 
 #define USB_PULLUP                      GPIOA
 #define USB_PULLUP_PIN                  GPIO_PIN_5
@@ -191,8 +192,19 @@ extern __IO uint8_t TM1CaptureNumber;
 extern __IO uint8_t TM2CaptureNumber;
 extern __IO uint8_t TM3CaptureNumber;
 
+__IO uint8_t uartflag=0;
+
 int main(void)
 {
+//	uint8_t  sbuff[24]={0};
+//	uint8_t  sobuff[18]={0x45,0x21,0x3e,0x30,0x56,0x90,0x65,0x12,0x85,0x96,0x74,0x32,0x85,0x52,0x95,0x96,0x98,0x99};
+//	uint8_t  fsbuff[16]={0x45,0x21,0x3e,0x30,0x56,0x90,0x65,0x12,0x85,0x96,0x74,0x32,0x85,0x52,0x95,0x96};
+//	uint8_t  dsbuff[9]={0x45,0x21,0x3e,0x30,0x56,0x90,0x65,0x12,0x85};
+//	uint8_t  lsbuff[8]={0x45,0x21,0x3e,0x30,0x56,0x90,0x65,0x12};
+//	uint8_t  key[16]={0x45,0x21,0x3e,0x30,0x96,0x74,0x32,0x85,0x52,0x95,0x96,0x98,0x99,0x56,0x90,0x65};
+//	uint8_t  loop=0,j,i;
+//	
+//	memcpy(sbuff,sobuff,18);
     /* SYSTICK configuration */
     systick_config();
 
@@ -214,7 +226,7 @@ int main(void)
     /* USART initialize */
     #ifdef UART_PRINT
 	dev_com_open();
-	uart_puts("APP Start...\r\n");
+//	uart_puts("APP Start...\r\n");
 	#endif
 
 
@@ -227,15 +239,15 @@ int main(void)
 
 	/* USB device configuration */
     usbd_core_init(&usb_device_dev);
-    uart_puts("1.usbd_core_init...\r\n");
+//    uart_puts("1.usbd_core_init...\r\n");
 
     /* NVIC configuration */
     nvic_config();
-    uart_puts("2.nvic_config...\r\n");
+//    uart_puts("2.nvic_config...\r\n");
 
     /* enabled USB pull-up */
     gpio_bit_set(USB_PULLUP, USB_PULLUP_PIN);
-    uart_puts("3.gpio_bit_set...\r\n");
+//    uart_puts("3.gpio_bit_set...\r\n");
 
     /* now the usb device is connected */
     usb_device_dev.status = USBD_CONNECTED;   
@@ -245,6 +257,27 @@ int main(void)
 
     ReadENCKEY();
 
+//    loop = 3;
+//		
+//		DBG_S("loo= = %d\r\n",loop);
+//		
+//    tri_des(sbuff,key,key+8,0);
+//		
+//			for(j = 1;j< loop;j++)							//加密第一磁道数据
+//			{
+//				DBG_H("1 sbuff",sbuff,8);
+//				
+//				DBG_H("2 sbuff",sbuff+j*8,8);
+//				
+//				xor(sbuff+j*8,sbuff+j*8-8,8);
+//				
+//				DBG_H("3 sbuff",sbuff+j*8,8);			
+//				
+//				tri_des(sbuff+j*8,key,key+8,0);
+//				DBG_H("4 sbuff",sbuff+j*8,8);	
+//				
+//			}
+//		DBG_H("sbuff",sbuff,24);
     #if 1
 	//复位加密磁头加密KEY
 //	#ifdef FLASHKEY_SUPPORT	
@@ -258,9 +291,25 @@ int main(void)
 //	memset(ENC_KEY.key, 0x00, sizeof(ENC_KEY.key));
 //	ENC_KEY.temp.level = 0x31;
 //	#endif
-	
+//	  GetNextKSN();
+//   memcpy(ENC_KEY.temp.sid,"\x01\x02\x03\x04\x05\x06\x07\x08",8);
+//	 memcpy(ENC_KEY.temp.ksn,"\x01\x02\x03\x04\x05\x06\x07\x08\xaa\xbb",10);
+//	 memcpy(ENC_KEY.temp.sn,"\x09\x08\x07\x06\x05\x04\x03\x02\x01\xdd",10);
+//	 memcpy(ENC_KEY.temp.fix,"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\xaa\xbb\xcc\xdd\xee",16);
+//	 ENC_KEY.temp.level=0x33;
+    memset(TK3buf,0x00,sizeof(TK3buf));
+		memset(TK2buf,0x00,sizeof(TK2buf));
+		memset(TK1buf,0x00,sizeof(TK1buf));
     while (1) {													/* main loop */
 		
+			if(uartflag==97)
+			{
+				
+				
+				uartflag=0;
+				
+				
+			}
 		//喂狗
 		//IWDG_ReloadCounter();
 		
@@ -270,8 +319,8 @@ int main(void)
 
 		if (MSR_fCardDataReady && 0 == get_tick()) {
 			MSR_Character_Decoder();
-						
-			MSR_SendData();
+//			printf("1111\r\n");			
+			MSR_SendData();//
 			if (GetNextFlag) {									//计算下一个KSN
 			
 				GetNextKSN();

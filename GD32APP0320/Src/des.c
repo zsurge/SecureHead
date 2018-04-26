@@ -430,6 +430,7 @@ void xor(uint8_t *sourceaddr, uint8_t *targetaddr, int length)
 /* This function is right */
 void tri_des(unsigned char *dat, unsigned char *key1, unsigned char *key2, unsigned char mode)
 {
+//tri_des(TK1buf+1,CryptoKey,CryptoKey+8,0);
 	des(dat, key1, mode);
 	des(dat, key2, 1 - mode);
 	des(dat, key1, mode);

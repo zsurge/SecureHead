@@ -31,6 +31,8 @@ volatile uint8_t TM1CaptureNumber = 0;
 volatile uint8_t TM2CaptureNumber = 0;
 volatile uint8_t TM3CaptureNumber = 0;
 
+
+extern __IO uint8_t uartflag;
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
 /******************************************************************************/
@@ -161,6 +163,7 @@ void USART0_IRQHandler(void)
 	if (RESET != usart_interrupt_flag_get(USART0, USART_STAT_RBNE, USART_INT_RBNEIE)) {
         /* receive data */
 		ch = usart_data_receive(USART0);
+		uartflag=ch;
 		//printf("%02X ", ch);
         rec_buf0[rec_end0++] = ch;
         if (rec_end0 >= RXTEMPBUFLENMAX) {
@@ -279,7 +282,7 @@ void EXTI0_1_IRQHandler(void)											/*Ë¢¿¨ÖÐ¶ÏÏìÓ¦º¯Êý*/
 {
 	#if 0
 	if (RESET != exti_interrupt_flag_get(EXTI_0)) {
-		printf("mag cpd\r\n");
+//		printf("mag cpd\r\n");
         exti_interrupt_flag_clear(EXTI_0);
 		if (0 == gpio_input_bit_get(GPIOA, GPIO_PIN_0)) {			
 			MSR_Check_Sync_Pattern();

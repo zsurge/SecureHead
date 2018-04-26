@@ -8,6 +8,8 @@
 #include "dev_uart.h"
 
 
+extern AES_KEY key;
+
 union __ENC_KEY ENC_KEY;					//密钥保存数据结构
 uint8_t CryptoKey[16];						//DUKPT计算出的过程密钥
 								  	
@@ -33,7 +35,7 @@ volatile uint8_t encryptdatastatus = 0x00;	//bit 1 ==1 表示1磁道加密数据存在
 											//bit 6 ==1 表示3磁道哈希数据存在
 											//bit 7 ==1 表示会话ID数据存在
 											//bit 8 ==1 表示KSN存在
-
+//volatile uint16_t XORflag = 0x02;
 volatile uint8_t RxdStatus = 0;			 		//接收状态
 volatile uint8_t SynHead = 0;				 	//接收包头个数
 volatile uint8_t RxdFrameStatus = 0;			//接收包状态
@@ -117,7 +119,7 @@ void init_serial_boot(void)
 void ResetSetting(void)
 {
 	SetKeyFlag = 0;
-	memset(ENC_KEY.key,0x00,140);
+	memset(ENC_KEY.key,0x00,144);
 	ENC_KEY.temp.level = 0x31;//加密等级为0x31
 	ENC_KEY.temp.enabledevice = 0x31; //启用、禁止标志位
 	ENC_KEY.temp.writesnflag = 0x30;  //写sn标志位
@@ -135,6 +137,55 @@ void ResetSetting(void)
 	WriteFlag = 0;						
 }
 
+void Default_Settings(void)
+{
+	
+	memset(ENC_KEY.key,0x00,sizeof(ENC_KEY.key));
+	ENC_KEY.temp.level = 0x31;//加密等级为0x31
+	ENC_KEY.temp.enabledevice = 0x31; //启用、禁止标志位
+	ENC_KEY.temp.writesnflag = 0x30;  //写sn标志位
+	ENC_KEY.temp.selecttrack = 0x30;    //选择磁道参数
+	ENC_KEY.temp.Terminator = 0x0D;     //磁道结束符  ---对照文档
+	ENC_KEY.temp.setseparator = 0x3b;   //写入数据分割符	
+	ENC_KEY.temp.beepmode = 0x32;      //蜂鸣器模式
+	ENC_KEY.temp.settrack2format = 0x31;//轨道2数据管理
+	ENC_KEY.temp.status = 0;			//失能加密
+	ENC_KEY.temp.encway = 0x30;			//默认DES加密
+//	IDT_UpdateKSN(10,ENC_KEY.temp.ksn);
+	memcpy(ENC_KEY.temp.ksn,"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x00",10);
+	
+	ENC_KEY.temp.Enhancedstatue=0x30;//强加密和普通加密状态
+	
+	ENC_KEY.temp.HASHSET=0x07;//哈希值的发送状态
+//	ENC_KEY.temp.ksn[10]={0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x00};
+	macstate = 0x30;					//未接收到鉴定数据
+	
+	memcpy(ENC_KEY.temp.key,"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x00\x01\x02\x03\x04",16);
+	
+	ENC_KEY.temp.enabledevice = 0x31; //启用、禁止标志位
+//	ENC_KEY.temp.Terminator = 0x0d;
+	
+	memset(ENC_KEY.temp.Preamble,0x00,sizeof(ENC_KEY.temp.Preamble)); //磁头起始符
+	memset(ENC_KEY.temp.Postamble,0x00,sizeof(ENC_KEY.temp.Postamble));
+	
+	memset(ENC_KEY.temp.track1prefix,0x00,sizeof(ENC_KEY.temp.track1prefix));//磁头前缀
+	memset(ENC_KEY.temp.track2prefix,0x00,sizeof(ENC_KEY.temp.track2prefix));
+	memset(ENC_KEY.temp.track3prefix,0x00,sizeof(ENC_KEY.temp.track3prefix));
+	
+	memset(ENC_KEY.temp.track1suffix,0x00,sizeof(ENC_KEY.temp.track1suffix));//磁头后缀
+	memset(ENC_KEY.temp.track1suffix,0x00,sizeof(ENC_KEY.temp.track1suffix));
+	memset(ENC_KEY.temp.track1suffix,0x00,sizeof(ENC_KEY.temp.track1suffix));
+	
+//	ENC_KEY.temp.selecttrack =0x30;
+//	ENC_KEY.temp.setseparator =0x0d;
+	
+//	ENC_KEY.temp.settrack2format=0x31;
+	
+	WriteFlag = 1;
+	WriteENCKEY();	
+	WriteFlag = 0;
+}
+
 /**************************************************************************************
 	*** 函 数 名:	void WriteENCKEY(void)
 	*** 功能描述：	讲ENCKEY保存到FLASH中
@@ -148,22 +199,22 @@ void WriteENCKEY(void)
 {
 	#ifdef FLASHKEY_SUPPORT
 	uint8_t i;
-	uint8_t tempdata[140];
+	uint8_t tempdata[144];
 	memset(tempdata ,0, sizeof(tempdata));
 	if(WriteFlag==1)
 	{
-		memcpy(tempdata,ENC_KEY.key,138);
-		memcpy(tempdata+138,"\x00\x00",2);
-		for(i=0;i<138;i++)
+		memcpy(tempdata,ENC_KEY.key,142);
+		memcpy(tempdata+142,"\x00\x00",2);
+		for(i=0;i<142;i++)
 		{
-			tempdata[138] ^= tempdata[i];
-			tempdata[139] += tempdata[i];
+			tempdata[142] ^= tempdata[i];
+			tempdata[143] += tempdata[i];
 		}
  		for(i=0;i<8;i++)
  			tri_des(tempdata+i*8,(unsigned char *)SHID,(unsigned char *)SHID+8,0);	   //加密要存储的密钥值
 		__disable_irq();
 		EarseBlockFlash(KEYADD);
-		WriteBlockFlash(KEYADD ,tempdata, 140);
+		WriteBlockFlash(KEYADD ,tempdata, 144);
 		__enable_irq();
 		return ;
 	}
@@ -186,19 +237,19 @@ void WriteENCKEY(void)
 uint8_t ReadENCKEY(void)
 {
 	#ifdef FLASHKEY_SUPPORT
-	uint8_t tempdata[140],i,lrc,bcc;
-	memset(tempdata ,0, 140);
-	ReadBlockFlash(KEYADD ,tempdata, 140);     			//读出之前保存的密钥值
+	uint8_t tempdata[144],i,lrc,bcc;
+	memset(tempdata ,0, 144);
+	ReadBlockFlash(KEYADD ,tempdata, 144);     			//读出之前保存的密钥值
 	for(i=0;i<8;i++)
 		tri_des(tempdata+i*8,(unsigned char *)SHID,(unsigned char *)SHID+8,1);	   //解密存储的密钥值
-	memcpy(ENC_KEY.key,tempdata,140);
+	memcpy(ENC_KEY.key,tempdata,144);
 	//校验保存的密钥
-	for(lrc=bcc=i=0;i<138;i++)
+	for(lrc=bcc=i=0;i<142;i++)
 	{
 		lrc ^= tempdata[i];
 		bcc += tempdata[i];
 	}
-	if(lrc == ENC_KEY.key[138] && bcc == ENC_KEY.key[139] )
+	if(lrc == ENC_KEY.key[142] && bcc == ENC_KEY.key[143] )
 		return TRUE;
 	else
 		return FALSE;
@@ -358,6 +409,27 @@ void CalcCryptoKey(void)
 	}while(k <= IDT_GetNumOfOnes(counter));
 }
 
+/*  
+
+
+异或函数
+
+
+*/
+
+ int CalcXOR(char *datas, int len,int sl)
+{
+		int i = 0;
+		int CheckSum = 0x02;
+
+		for (i = sl; i < len; i++)
+		{
+				CheckSum ^= datas[i];
+		}
+
+		return CheckSum;
+}
+
 /**************************************************************************************
 	*** 函 数 名:	void send_frame(uint8_t frame_type)
 	*** 功能描述：	返回对命令的响应；
@@ -367,15 +439,135 @@ void CalcCryptoKey(void)
 ***************************************************************************************/
 void send_frame(uint8_t frame_type)
 {
-    uint8_t i = 0, j, bcc;
+  uint8_t i = 0, j, bcc;
 	uint8_t TxdBuf[MAX_TXD_BUF_LEN];
 	uint8_t TempBuf[20];
 	uint8_t pBKCV[6];
 	uint8_t bpSEncod[10]={0xFF,0x00,0x06,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
         
-    switch (frame_type) 
+  switch (frame_type) 
 	{
-        case REQUEST_DOWN:   				/* request download */
+		case REVIEWSET:
+		i=0;
+		TxdBuf[i++]=0x06;//   其实帧包头
+		TxdBuf[i++]=0x02;
+		
+		bcc = 0x02;
+		
+		TxdBuf[i++]=0x4c;		
+		TxdBuf[i++]=0x01;		
+		TxdBuf[i++]=ENC_KEY.temp.encway;
+		
+		
+		TxdBuf[i++]=0x4e;//ksn		
+		TxdBuf[i++]=0x0a;
+		for(j=0;j<10;j++)
+		{
+		  TxdBuf[i++]=ENC_KEY.temp.sn[j];
+		}
+		
+		TxdBuf[i++]=0x1a;	/* MSR Reading Settings*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.enabledevice;
+		
+		
+		TxdBuf[i++]=0x1d;	/* Decoding Method Setting*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=0x31;
+		
+		TxdBuf[i++]=0x21;	/* Decoding Method Setting*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.Terminator;
+		
+		TxdBuf[i++]=0x21;	/* Preamble Setting*/
+		TxdBuf[i++]=strlen(ENC_KEY.temp.Preamble);
+		i+=1;
+		memcpy(TxdBuf+i,ENC_KEY.temp.Preamble,strlen(ENC_KEY.temp.Preamble));
+		i+=strlen(ENC_KEY.temp.Preamble);
+		
+		TxdBuf[i++]=0xd3;	/* Postamble Setting*/
+		TxdBuf[i++]=strlen(ENC_KEY.temp.Postamble);
+		i+=1;
+		memcpy(TxdBuf+i,ENC_KEY.temp.Postamble,strlen(ENC_KEY.temp.Postamble));
+		i+=strlen(ENC_KEY.temp.Postamble);
+		
+		TxdBuf[i++]=0x34;	/* Track n Prefix Setting   n= 34 35 36*/
+		TxdBuf[i++]=strlen(ENC_KEY.temp.track1prefix);
+		i+=1;
+		memcpy(TxdBuf+i,ENC_KEY.temp.track1prefix,strlen(ENC_KEY.temp.track1prefix));
+		i+=strlen(ENC_KEY.temp.track1prefix);
+		
+		TxdBuf[i++]=0x35;	/* Track n Prefix Setting   n= 34 35 36*/
+		TxdBuf[i++]=strlen(ENC_KEY.temp.track2prefix);
+		i+=1;
+		memcpy(TxdBuf+i,ENC_KEY.temp.track1prefix,strlen(ENC_KEY.temp.track2prefix));
+		i+=strlen(ENC_KEY.temp.track2prefix);
+		
+		TxdBuf[i++]=0x36;	/* Track n Prefix Setting   n= 34 35 36*/
+		TxdBuf[i++]=strlen(ENC_KEY.temp.track3prefix);
+		i+=1;
+		memcpy(TxdBuf+i,ENC_KEY.temp.track1prefix,strlen(ENC_KEY.temp.track3prefix));
+		i+=strlen(ENC_KEY.temp.track3prefix);
+		
+	  TxdBuf[i++]=0x13;	/* Track Selection Setting*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.selecttrack;
+		
+		TxdBuf[i++]=0x17;	/* Track Separator Selection*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.setseparator;
+		
+		TxdBuf[i++]=0x19;	/* Start/End Sentinel and Track 2 Account Number Only*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.settrack2format;
+
+    TxdBuf[i++]=0x58;	/* Select Key Management Type*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.encmode;
+		
+		TxdBuf[i++]=0x4c;	/* Encryption Settings*/
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.encway;
+		
+		
+		TxdBuf[i++]=0x51;	/* Encryption Settings*/
+		TxdBuf[i++]=0x0a;
+		memcpy(TxdBuf+i,ENC_KEY.temp.ksn,10);
+		TxdBuf[i++]=ENC_KEY.temp.encway;
+		
+		TxdBuf[i++]=0x7e;     /*   加密等级     */
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.level;
+			
+		TxdBuf[i++]=0x5c;          /* Hash Option Setting */
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.HASHSET;
+		
+		TxdBuf[i++]=0x85;          /* Encryption Output Format Setting */
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.Enhancedstatue;
+		
+		TxdBuf[i++]=0x86;          /* Mask Option Setting */
+		TxdBuf[i++]=0x01;
+		TxdBuf[i++]=ENC_KEY.temp.MaskSetting;
+		
+		TxdBuf[i++]=ETX;
+		
+		TxdBuf[i++]=CalcXOR(TxdBuf,i,2);
+		
+		break;
+		
+		
+		case ENCRYPTEXTERNAL://外部认证模式  只有在加密等级4的时候才使用
+			i=0;
+		  TxdBuf[i++]=0x06;
+		  TxdBuf[i++]=0x02;
+		  
+		
+		
+		
+       break;
+    case REQUEST_DOWN:   				/* request download */
             i = 0;						    //请求下载
 			TxdBuf[i++] = frame_type;
 			break;
@@ -404,26 +596,28 @@ void send_frame(uint8_t frame_type)
 			break;
 		case GETSECURITYLEVEL:					//0x7E	/* get security level */
 			if(RxdBuf[2] == GETSECURITYLEVEL) 
-			{
+			{				
 				i = 0;
 				TxdBuf[i++] = 0x06; 			// 06
 				TxdBuf[i++] = RxdBuf[0]; 		// 02
 				bcc = RxdBuf[0];
 				TxdBuf[i++] = GETSECURITYLEVEL;
-	            bcc ^= GETSECURITYLEVEL;
+	             bcc ^= GETSECURITYLEVEL;
 				TxdBuf[i++] = 0x01;
 	            bcc ^= 0x01;
 				//ReadENCKEY();
 				TxdBuf[i++] = ENC_KEY.temp.level;
-	            bcc ^= ENC_KEY.temp.level; 				
+	             bcc ^= ENC_KEY.temp.level; 				
 				TxdBuf[i++] = ETX;
 	            bcc ^= ETX;
 	            TxdBuf[i++] = bcc;
+//				printf("op[]\r\n");
 				break;
 			}
 			init_serial_boot();	
 			break;
 		case GETCHALLENGE:
+//			 printf("RxdBuf--AS %x\r\n",RxdBuf[2]);
 			if(RxdBuf[2] == GETCHALLENGE) 
 			{
 				i = 0;
@@ -432,6 +626,8 @@ void send_frame(uint8_t frame_type)
 				bcc = RxdBuf[0];
 				for(j=0; j<8; j++)  //拷贝随机数、计算异或和
 				{
+					random[j] = rand()%127; //random[j];
+
 					TxdBuf[i++] = random[j];
 					bcc ^= random[j];
 				}
@@ -465,6 +661,8 @@ void send_frame(uint8_t frame_type)
 		case REVIEWKSN:
 			if(RxdBuf[2] == REVIEWKSN) 
 			{
+				
+//				printf("456\r\n");
 				i = 0;
 				TxdBuf[i++] = 0x06; 			// 06
 				TxdBuf[i++] = RxdBuf[0]; 		// 02
@@ -479,11 +677,13 @@ void send_frame(uint8_t frame_type)
 				for(j=0; j< 10; j++)  			//拷贝KSN、计算异或和
 				{
 					TxdBuf[i++] = ENC_KEY.temp.ksn[j];
+					printf("ENC_KEY.temp.ksn[j] %x\r\n",ENC_KEY.temp.ksn[j]);
 					bcc ^= ENC_KEY.temp.ksn[j];
 				}
 				TxdBuf[i++] = ETX;
 	            bcc ^= ETX;
 	            TxdBuf[i++] = bcc;
+//				printf("TxdBuf %x\r\n",TxdBuf[i-1]);
 				break;
 			}
 			init_serial_boot();
@@ -587,11 +787,22 @@ void send_frame(uint8_t frame_type)
 				}
 			}
 			break;
+		case SETTERMINATOR:
+		{
+			i = 0;
+			memset(TxdBuf,0x00,sizeof(TxdBuf));
+		  TxdBuf[i++] = 0x06; 
+			
+			printf("ff\r\n");
+			
+			
+		}break;
+		
         default:
         	init_serial_boot();
 			return;
     }
-	//dev_com_write(TxdBuf, i);
+	dev_com_write(TxdBuf, i);
 	UsbSendBuff(TxdBuf, i, 3000);
 
 	//发送命令的响应
@@ -677,10 +888,11 @@ void DealSerialParse(void)
 	*** 返 回 值:	NULL   	 	
 	*** 模块信息: 	Ouyangweiquan 2011.09.20创建
 ***************************************************************************************/
+char firstflag=0,secondflag=0,countflag=0,firstkeybuff[16],secondkeybuff[16];
 void DealRxData(void)
 {
-	uint16_t i;
-	uint8_t bcc = 0;
+	uint16_t i,j,loop;
+	uint8_t bcc = 0,setseparatorflag=0,EnyBuff[]={0},ivec[16];
     
 	if (FINISH == RxdFrameStatus)
 	{
@@ -691,9 +903,70 @@ void DealRxData(void)
 //			printf("%02X ", RxdBuf[i]);
 //		printf("\r\n");
 
-    DBG_H("CMD", RxdBuf, RxdTotalLen);
+//    DBG_H("CMD", RxdBuf, RxdTotalLen);
+		
 		
 		wwdgt_counter_update(0);
+		
+		if(RxdBuf[0]==0x01) //LOADKEY  导入密钥
+		{
+		if(RxdBuf[5]==0x01)
+			{
+				if(firstflag!=RxdBuf[5])
+				{
+					firstflag=RxdBuf[5];
+					if(countflag==0)
+					{					
+						countflag+=1;
+						memset(firstkeybuff,0x00,sizeof(firstkeybuff));
+						memcpy(firstkeybuff,&RxdBuf[6],16);				
+					}
+					if(countflag==1)
+					{
+						countflag=0;
+						firstflag=0;
+						memset(secondkeybuff,0x00,sizeof(secondkeybuff));
+						memcpy(secondkeybuff,&RxdBuf[6],16);
+						
+						xor(firstkeybuff,secondkeybuff,16);	
+						memset(ENC_KEY.temp.key,0x00,sizeof(ENC_KEY.temp.key));
+						memcpy(ENC_KEY.temp.key,firstkeybuff,16);
+						memset(firstkeybuff,0x00,sizeof(firstkeybuff));
+						memset(secondkeybuff,0x00,sizeof(secondkeybuff));
+						
+						send_frame(CMDSUCC);
+					}
+			}
+		}
+			if(RxdBuf[5]==0x02)
+			{
+				if(secondflag!=RxdBuf[5])
+				{
+					secondflag=RxdBuf[5];
+				if(countflag==0)
+				{					
+					countflag+=1;
+					memset(firstkeybuff,0x00,sizeof(firstkeybuff));
+				  memcpy(firstkeybuff,&RxdBuf[6],16);				
+			  }
+				if(countflag==1)
+				{
+					countflag=0;
+					secondflag=0;
+					memset(secondkeybuff,0x00,sizeof(secondkeybuff));
+				  memcpy(secondkeybuff,&RxdBuf[6],16);
+          xor(firstkeybuff,secondkeybuff,16);	
+          memset(ENC_KEY.temp.key,0x00,sizeof(ENC_KEY.temp.key));//清理key数组
+          memcpy(ENC_KEY.temp.key,firstkeybuff,16);
+					memset(firstkeybuff,0x00,sizeof(firstkeybuff));
+					memset(secondkeybuff,0x00,sizeof(secondkeybuff));	
+          send_frame(CMDSUCC);					
+				}
+			}
+				
+			}							
+	}
+		
 		if(RxdBuf[0] == STX)										//解析02数据包
 		{
 			if (REQUEST_DOWN == RxdBuf[1])							//0x55	/* request download */
@@ -707,6 +980,64 @@ void DealRxData(void)
 				delay_1ms(10000); 		
 			    while(1);
 			    
+			}
+			else if(ENCRYPTEXTERNAL == RxdBuf[1])//解密外部数据
+			{
+				memcpy(EnyBuff,&RxdBuf[4],RxdBuf[3]);
+				loop=RxdBuf[3]/8;
+				if((RxdBuf[3]%8)!=0) loop+=1;
+				
+				memset(ivec,0,sizeof(ivec));
+				if((ENC_KEY.temp.level==0x32)||(ENC_KEY.temp.level==0x33))
+				{					
+					if(0x31 == ENC_KEY.temp.encmode)//是dukpt加密方式  则返回ksn
+					{
+						CalcCryptoKey();//DUKPT加密方式获取密钥
+					}				
+					if(0x30 == ENC_KEY.temp.encmode)//是fix加密方式  则返回sn
+					{
+						memcpy(CryptoKey,ENC_KEY.temp.fix,16);				//拷贝FIX密钥						
+					}
+					if (0x31 == ENC_KEY.temp.encmode)				   		//DUKPT加密
+					{
+						tri_des(EnyBuff,CryptoKey,CryptoKey+8,0);
+						for(j = 1;j< loop;j++)							//加密第一磁道数据
+						{
+							xor(EnyBuff+j*8,EnyBuff+j*8-7,8);
+							tri_des(EnyBuff+1+j*8,CryptoKey,CryptoKey+8,0);
+						}
+						
+					}
+					if (0x32 == ENC_KEY.temp.encmode)				   		////AES加密加密
+					{
+						AES_set_encrypt_key(CryptoKey,128,&key);
+						AES_cbc_encrypt(EnyBuff,EnyBuff,loop*16,&key,ivec,1);
+					}
+					if(ENC_KEY.temp.level==0x33) //加密等级4
+					{
+						loop=RxdBuf[3];
+						memcpy(EnyBuff,ENC_KEY.temp.sid,loop);					
+					}
+					if(0x31 == ENC_KEY.temp.encmode)//是dukpt加密方式  则返回ksn
+					{
+						memcpy(EnyBuff+loop,ENC_KEY.temp.ksn,10);
+            loop+=10;						
+					}
+					if(0x30 == ENC_KEY.temp.encmode)
+					{
+						memcpy(EnyBuff+loop,ENC_KEY.temp.sn,10);//FIX KEY加密
+						loop+=10;
+					}
+					UsbSendBuff(EnyBuff, loop, 3000);
+					send_frame(ENCRYPTEXTERNAL);
+				}
+				else 
+				{
+					send_frame(CMDERRO);
+					
+				}
+				init_serial_boot();
+//				break;
 			}
 			else if (READ_VERSION == RxdBuf[1])						//0x28	/* read application ersion */
 			{
@@ -741,6 +1072,7 @@ void DealRxData(void)
 //            	WriteENCKEY();	
 //            	send_frame(CMDSUCC);
 //            	WriteFlag = 0;	
+//                printf("00002\r\n");
                 ResetSetting();
                 send_frame(CMDSUCC);
 				init_serial_boot();
@@ -749,6 +1081,7 @@ void DealRxData(void)
 			{
 				memset(SetKeyBuf,0,sizeof(SetKeyBuf));
 				SetKeyLen = from64tobits(SetKeyBuf,&RxdBuf[3],RxdTotalLen-7);
+//				DBG_H("SetKeyBuf is",SetKeyBuf,RxdTotalLen-7);
 				if(SetKeyBuf[0] == SETKEYHEAD)
 				{
 					bcc = 0;	
@@ -813,17 +1146,54 @@ void DealRxData(void)
 					}
 				}
 				
-			}				
-			else if (READCMD == RxdBuf[1])					//0x52	/* read status commands */
+			}	
+
+			
+			else if (READCMD == RxdBuf[1])					//0x52	/* read status commands */  读取状态命令
 			{
 				switch (RxdBuf[2])
 				{
+					case REVIEWSET:
+						send_frame(REVIEWSET);
+						RxdFrameStatus = SPACE;
+                		break;
+						
+					case ACTIVATEAUTHEN:
+						if(ENC_KEY.temp.level==0x33)//加密等级4
+						{
+						if(RxdBuf[3]==0x80)
+						{
+							if(RxdBuf[4]==0x02)
+							{
+								j=0;loop=0;i=0;
+								
+								memcpy(EnyBuff+j,ENC_KEY.temp.ksn,10);
+								for(loop=0;loop<2;loop++)
+								{
+									for(i=0;i<6;i++)
+									EnyBuff[j++]=rand()%127;
+									if(i==5)
+									{
+										EnyBuff[j++]=ENC_KEY.temp.ksn[9];
+										EnyBuff[j++]=ENC_KEY.temp.ksn[10];
+									}
+								}
+							}
+							
+						}send_frame(CMDSUCC);
+					}
+					else
+					{
+						send_frame(CMDERRO);
+					}RxdFrameStatus = SPACE;
+					
+					break;
 					case READID:						    //0x22	/* read secureheadreader ID */
 						send_frame(READID);
 						RxdFrameStatus = SPACE;
                 		break;
 					case GETCHALLENGE:						//0x74	/* get encrypt challenge */
-						Random();							//产生随机数
+//						printf("ccs\r\n");
 						send_frame(GETCHALLENGE);
 						RxdFrameStatus = SPACE;
                 		break;
@@ -832,6 +1202,7 @@ void DealRxData(void)
 						RxdFrameStatus = SPACE;
                 		break;
 					case REVIEWKSN:							//0x51	/* review KSN (DUKPT key management only) */
+//						printf("002ggh\r\n");
 						send_frame(REVIEWKSN);
 						RxdFrameStatus = SPACE;
                 		break;
@@ -850,21 +1221,65 @@ void DealRxData(void)
 			}
 			else if (SETTINGCMD == RxdBuf[1])				//0x53	/* setting commands */
 			{
+
 				switch (RxdBuf[2])
 				{
+					case MASKOPTION: //MaskSetting  数据掩码设置
+						if(RxdBuf[3]==0x01)   //
+						{
+								if(RxdBuf[4]==0x01)
+									ENC_KEY.temp.MaskSetting=RxdBuf[4];
+							
+							send_frame(CMDSUCC);
+						}
+						else
+						{
+							send_frame(CMDERRO);
+						}RxdFrameStatus = SPACE;
+							break;
+					case HASHOPTION:
+						if(RxdBuf[2]==0x5C)
+						{
+							if(RxdBuf[3]==0x01)
+							{
+								if(RxdBuf[4]==0x01)//轨道1哈希值发送标记
+								ENC_KEY.temp.HASHSET=RxdBuf[4];
+								
+								if(RxdBuf[4]==0x02)//轨道2哈希值发送标记
+								ENC_KEY.temp.HASHSET=RxdBuf[4];
+								
+								if(RxdBuf[4]==0x04)//轨道3哈希值发送标记
+								ENC_KEY.temp.HASHSET=RxdBuf[4];
+								
+								if(RxdBuf[4]==0x07)//全部轨道哈希值发送标记
+								ENC_KEY.temp.HASHSET=RxdBuf[4];
+								send_frame(CMDSUCC);
+						   
+							}
+							
+						}
+						else
+						{
+							send_frame(CMDERRO);
+						}RxdFrameStatus = SPACE;
+							break;		
 					case SETDEFAULT:						//0x18	/* set default configuration */
 						ENC_KEY.temp.status = 0;			//失能加密
 						ENC_KEY.temp.level = 0x31;			//加密级别为1
 						ENC_KEY.temp.encway = 0x00;			//默认DES加密
 						macstate = 0x00;					//未接收到鉴定数据
 						WriteFlag = 1;
+//					  ResetSetting();
 						WriteENCKEY();						//保存更新后的KEY
-						WriteFlag = 0;	                        
+						WriteFlag = 0;	
+					  
+            Default_Settings();					
 						send_frame(CMDSUCC);
 						RxdFrameStatus = SPACE;
+//					  printf("ffddQQ\r\n");
                 		break;
-                	case SETBEEP:
-                		if(RxdBuf[3] == 0x01)
+					case SETBEEP:
+						if(RxdBuf[3] == 0x01)
 						{	
 							if(0x30 <= RxdBuf[4] && 0x34 > RxdBuf[4])		 //匹配命令的参数
 							{
@@ -886,12 +1301,16 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;
                 		break;
-                	case SETSELECTTRACK :
-                	    if(RxdBuf[3] == 0x01)
+        case SETSELECTTRACK :  /*设置选择读的轨道*/
+//					printf("RxdBufdf %x\r\n",RxdBuf[4]);
+            if(RxdBuf[3] == 0x01)
 						{	
 							if(0x30 <= RxdBuf[4] && 0x39 >= RxdBuf[4])		 //匹配命令的参数
 							{
-								ENC_KEY.temp.selecttrack = RxdBuf[4];	//读取设置的加密方式							
+								ENC_KEY.temp.selecttrack = RxdBuf[4];	//读取设置的加密方式	
+//                printf("ENC_KEY.temp.selecttrack %d\r\n",ENC_KEY.temp.selecttrack);	
+//                printf("RxdBuf0 %x\r\n",RxdBuf[4]);									
+                								
 								WriteFlag = 1;
 								WriteENCKEY();				//保存更新后的参数
 								WriteFlag = 0;
@@ -909,12 +1328,17 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;
                 	    break;
-            	    case SETTRACKSEPARATOR:
-                	    if(RxdBuf[3] == 0x01)
+						
+         case SETTRACKSEPARATOR:   /*设置轨道分割符*/
+					   
+            if(RxdBuf[3] == 0x01)
 						{	
 							if(0 <= RxdBuf[4] && 127 >= RxdBuf[4])		 //匹配命令的参数
 							{
-								ENC_KEY.temp.setseparator = RxdBuf[4];	//写入分割符							
+								setseparatorflag=RxdBuf[4];
+								printf("RxdBuf %x\r\n",RxdBuf[4]);
+								ENC_KEY.temp.setseparator = setseparatorflag;	//写入分割符	
+                printf("ENC_KEY.temp.setseparator %d\r\n",ENC_KEY.temp.setseparator);								
 								WriteFlag = 1;
 								WriteENCKEY();				//保存更新后的参数
 								WriteFlag = 0;
@@ -932,8 +1356,8 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;            	    
             	    break;
-            	    case SETTRACK2:
-                	    if(RxdBuf[3] == 0x01)
+           case SETTRACK2:   /*设置轨道2数据上送格式*/
+           if(RxdBuf[3] == 0x01)
 						{	
 							if(0x30 <= RxdBuf[4] && 0x34 > RxdBuf[4])		 //匹配命令的参数
 							{
@@ -959,7 +1383,8 @@ void DealRxData(void)
 						send_frame(CMDSUCC);
 						RxdFrameStatus = SPACE;
                 		break;
-					case SETENCMODE:						//0x58	/* set encryption mode */							
+					case SETENCMODE:						//0x58	/* set encryption mode */		
+//            printf("SETENCMODE\r\n");						
 						if(RxdBuf[3]==0x01)
 						{	
 							if(0x30==RxdBuf[4]|| 0x31==RxdBuf[4])
@@ -983,10 +1408,14 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;
                 		break;
-					case SENDAUTHDATA:						//0x74	/* send authentication data */
+				case SENDAUTHDATA:						//0x74	/* send authentication data */
+
+//				    DBG_H("randomf",random,8);
 						tri_des(random,ENC_KEY.temp.fix,ENC_KEY.temp.fix+8,0);
+				    
 						if(memcmp(random,&RxdBuf[4],RxdBuf[3]) == 0)
 						{
+//							DBG_H("ENC_KEY.temp.fix",ENC_KEY.temp.fix,16);							
 							macstate = 0x31;				//鉴定数据OK
 							memset(random,0x00,8);			//清空随机数
 							send_frame(CMDSUCC);	
@@ -1003,17 +1432,29 @@ void DealRxData(void)
                         
 						if(RxdBuf[3]==0x01)
 						{	
-							if(0x30 == RxdBuf[4] || 0x31 == RxdBuf[4] || 0x32 == RxdBuf[4])
+							if( 0x31 == RxdBuf[4] || 0x32 == RxdBuf[4])
 							{
-								ENC_KEY.temp.encway = RxdBuf[4];//读取设置的加密类型
+								ENC_KEY.temp.encway = RxdBuf[4];//读取设置的加密类型   
 								ENC_KEY.temp.status = 1;	//使能加密
 								WriteFlag = 1;
 								WriteENCKEY();				//保存更新后的KEY
 								WriteFlag = 0;
 								send_frame(CMDSUCC);
 							}
-							else
-								send_frame(CMDERRO);
+							if(0x30 == RxdBuf[4])
+							{
+								ENC_KEY.temp.encway = RxdBuf[4];//读取设置的加密类型   
+								ENC_KEY.temp.status = 0;	//使能加密
+//								printf("ddffc\r\n");
+//								printf("ENC_KEY.temp.encwayccf %d\r\n",ENC_KEY.temp.encway);
+								WriteFlag = 1;
+								WriteENCKEY();				//保存更新后的KEY
+								WriteFlag = 0;
+								send_frame(CMDSUCC);
+								
+							}
+//							else
+//								send_frame(CMDERRO);
 						}
 						else
 						{
@@ -1028,8 +1469,24 @@ void DealRxData(void)
 					case SETENCRYPTIONOPTION:					//0x84	/* Encryption Option Setting*/
 						if(RxdBuf[3]==0x01)
 						{	
-							if(0x08 == RxdBuf[4])		    //默认设置为08，还需要再修改
+							if(0x01 == RxdBuf[4])		    //轨道1强制加密
 							{
+								ENC_KEY.temp.Enhancedoption=RxdBuf[4];
+								send_frame(CMDSUCC);
+							}
+							if(0x02 == RxdBuf[4])		    //轨道3强制加密
+							{
+								ENC_KEY.temp.Enhancedoption=RxdBuf[4];
+								send_frame(CMDSUCC);
+							}
+							if(0x04 == RxdBuf[4])		    //轨道3强制加密
+							{
+								ENC_KEY.temp.Enhancedoption=RxdBuf[4];
+								send_frame(CMDSUCC);
+							}
+							if(0x08 == RxdBuf[4])		    //轨道3强制加密
+							{
+								ENC_KEY.temp.Enhancedoption=RxdBuf[4];
 								send_frame(CMDSUCC);
 							}
 						}
@@ -1044,11 +1501,18 @@ void DealRxData(void)
 						{	
 							if(0x31 == RxdBuf[4])		 //匹配命令的参数
 							{
+								ENC_KEY.temp.Enhancedstatue=RxdBuf[4];
 								send_frame(CMDSUCC);
 							}
+							else if(0x30 == RxdBuf[4])	
+							{
+								ENC_KEY.temp.Enhancedstatue=RxdBuf[4];
+								send_frame(CMDSUCC);							
+							}
 						}
-						else
+						else if(RxdBuf[3] == 0x00)
 						{
+//							ENC_KEY.temp.Enhancedstatue=RxdBuf[4];
 							send_frame(CMDERRO);
 						}
 						RxdFrameStatus = SPACE;
@@ -1078,7 +1542,7 @@ void DealRxData(void)
 						}
 						else
 							send_frame(CMDERRO);	
-						RxdFrameStatus = SPACE;
+						  RxdFrameStatus = SPACE;
                 		break;
 					case REVIEWSN:							//0x4E	/* review serial number */
 						if(RxdBuf[3]==0x0A)
@@ -1125,14 +1589,17 @@ void DealRxData(void)
 							send_frame(CMDERRO);	
 						RxdFrameStatus = SPACE;
 		            break;
-                    case SETTERMINATOR:
-                        if(RxdBuf[3]==0x01)
+						
+        case SETTERMINATOR: /*设置结束符*/
+//					printf("oo---\r\n");
+            if(RxdBuf[3]==0x01)
 						{	
 							ENC_KEY.temp.Terminator = RxdBuf[4];
 							WriteFlag = 1;
 							WriteENCKEY();					
-							WriteFlag = 0; 		
-							send_frame(CMDSUCC);   
+							WriteFlag = 0;
+              send_frame(SETTERMINATOR);							
+//							send_frame(CMDSUCC);   
 						}
 						else
 						{
@@ -1140,11 +1607,13 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;
                         break;
-                    case SETPREAMBLE:
-                        if(RxdBuf[3] <= 0x0F && RxdBuf[3] >= 0)
-						{								
+				case SETPREAMBLE:
+						if(RxdBuf[3] <= 0x0F && RxdBuf[3] >= 0)
+						{
+              if(RxdBuf[3]>0x01)RxdBuf[3]=0x01;							
 							memset(ENC_KEY.temp.Preamble,0x00,sizeof(ENC_KEY.temp.Preamble));
-							memcpy(ENC_KEY.temp.Preamble,&RxdBuf[5],RxdBuf[3]);
+							memcpy(ENC_KEY.temp.Preamble,&RxdBuf[4],RxdBuf[3]);
+							
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1156,8 +1625,8 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;
 					    break;					
-                    case SETPOSTAMBLE:
-                        if(RxdBuf[3] <= 0x0F && RxdBuf[3] >= 0)
+				case SETPOSTAMBLE:
+						if(RxdBuf[3] <= 0x0F && RxdBuf[3] >= 0)
 						{								
 							memset(ENC_KEY.temp.Postamble,0x00,sizeof(ENC_KEY.temp.Postamble));
 							memcpy(ENC_KEY.temp.Postamble,&RxdBuf[5],RxdBuf[3]);
@@ -1172,11 +1641,11 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;                    
 						break;
-                    case SETTRACK1PREFIX:
-                        if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
+				case SETTRACK1PREFIX:
+						if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
 						{	
 							memset(ENC_KEY.temp.track1prefix,0x00,sizeof(ENC_KEY.temp.track1prefix));
-							memcpy(ENC_KEY.temp.track1prefix,&RxdBuf[5],RxdBuf[3]);
+							memcpy(ENC_KEY.temp.track1prefix,&RxdBuf[4],RxdBuf[3]);
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1188,11 +1657,11 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;                     
 						break;
-                    case SETTRACK2PREFIX:
-                        if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
+				case SETTRACK2PREFIX:
+						if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
 						{	
 							memset(ENC_KEY.temp.track2prefix,0x00,sizeof(ENC_KEY.temp.track2prefix));
-							memcpy(ENC_KEY.temp.track2prefix,&RxdBuf[5],RxdBuf[3]);
+							memcpy(ENC_KEY.temp.track2prefix,&RxdBuf[4],RxdBuf[3]);
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1204,11 +1673,11 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;  
 						break;
-                    case SETTRACK3PREFIX:
-                        if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
+        case SETTRACK3PREFIX:
+            if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
 						{	
 							memset(ENC_KEY.temp.track3prefix,0x00,sizeof(ENC_KEY.temp.track3prefix));
-							memcpy(ENC_KEY.temp.track3prefix,&RxdBuf[5],RxdBuf[3]);
+							memcpy(ENC_KEY.temp.track3prefix,&RxdBuf[4],RxdBuf[3]);
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1220,11 +1689,18 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;  
 						break;
-                    case SETTRACK1SUFFIX:
-                        if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
+				case SETTRACK1SUFFIX:
+						if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
 						{	
 							memset(ENC_KEY.temp.track1suffix,0x00,sizeof(ENC_KEY.temp.track1suffix));
-							memcpy(ENC_KEY.temp.track1suffix,&RxdBuf[5],RxdBuf[3]);
+							memcpy(ENC_KEY.temp.track1suffix,&RxdBuf[4],RxdBuf[3]);
+//							printf("ENC_KEY.temp.track1suffix0 %x\r\n",ENC_KEY.temp.track1suffix[0]);
+//							printf("ENC_KEY.temp.track1suffix1 %x\r\n",ENC_KEY.temp.track1suffix[1]);
+//							printf("ENC_KEY.temp.track1suffix2 %x\r\n",ENC_KEY.temp.track1suffix[2]);
+//							printf("ENC_KEY.temp.track1suffix3 %x\r\n",ENC_KEY.temp.track1suffix[3]);
+//							printf("ENC_KEY.temp.track1suffix4 %x\r\n",ENC_KEY.temp.track1suffix[4]);
+//							printf("ENC_KEY.temp.track1suffix5 %x\r\n",ENC_KEY.temp.track1suffix[5]);
+							
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1236,11 +1712,17 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;                      
 						break;
-                    case SETTRACK2SUFFIX:
-                        if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
+				case SETTRACK2SUFFIX:
+						if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
 						{	
 							memset(ENC_KEY.temp.track2suffix,0x00,sizeof(ENC_KEY.temp.track2suffix));
-							memcpy(ENC_KEY.temp.track2suffix,&RxdBuf[5],RxdBuf[3]);
+							memcpy(ENC_KEY.temp.track2suffix,&RxdBuf[4],RxdBuf[3]);
+//							printf("ENC_KEY.temp.track1suffix0--- %x\r\n",ENC_KEY.temp.track2suffix[0]);
+//							printf("ENC_KEY.temp.track1suffix1--- %x\r\n",ENC_KEY.temp.track2suffix[1]);
+//							printf("ENC_KEY.temp.track1suffix2--- %x\r\n",ENC_KEY.temp.track2suffix[2]);
+//							printf("ENC_KEY.temp.track1suffix3--- %x\r\n",ENC_KEY.temp.track2suffix[3]);
+//							printf("ENC_KEY.temp.track1suffix4--- %x\r\n",ENC_KEY.temp.track2suffix[4]);
+//							printf("ENC_KEY.temp.track1suffix5--- %x\r\n",ENC_KEY.temp.track2suffix[5]);
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1252,11 +1734,11 @@ void DealRxData(void)
 						}
 						RxdFrameStatus = SPACE;  
 						break;
-                    case SETTRACK3SUFFIX:
-                        if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
+            case SETTRACK3SUFFIX:
+            if(RxdBuf[3] <= 0x06 && RxdBuf[3] >= 0)
 						{								
-					        memset(ENC_KEY.temp.track3suffix,0x00,sizeof(ENC_KEY.temp.track3suffix));
-							memcpy(ENC_KEY.temp.track3suffix,&RxdBuf[5],RxdBuf[3]);
+					    memset(ENC_KEY.temp.track3suffix,0x00,sizeof(ENC_KEY.temp.track3suffix));
+							memcpy(ENC_KEY.temp.track3suffix,&RxdBuf[4],RxdBuf[3]);
 							WriteFlag = 1;
 							WriteENCKEY();					
 							WriteFlag = 0; 		
@@ -1269,6 +1751,7 @@ void DealRxData(void)
 						RxdFrameStatus = SPACE;  
 						break;
 
+						
 		            
 	    	        default:
 	        	       init_serial_boot();

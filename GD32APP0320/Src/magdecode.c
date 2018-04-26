@@ -382,19 +382,23 @@ uint8_t DecodeTimeToBit(uint8_t type)
 	{
 		lpInTimeFlowLength = Track1TimeFlow.Length;
 		lpInTimeFlowValue = Track1TimeFlow.Value;
+//		printf("001 \r\n");
 	}
 	else if (2 == type)
 	{
 		lpInTimeFlowLength = Track2TimeFlow.Length;
 		lpInTimeFlowValue = Track2TimeFlow.Value;
+//		printf("002 \r\n");
 	}
 	else if (3== type)
 	{
 		lpInTimeFlowLength = Track3TimeFlow.Length;
 		lpInTimeFlowValue = Track3TimeFlow.Value;
+//		printf("003 \r\n");
 	}
 	else
 	{
+//		printf("004 \r\n");
 		return 3;
 	}
 	memset((uint8_t*)&TrackBitFlow,0,sizeof(TRACKBITFLOW));
@@ -664,14 +668,17 @@ uint8_t DecodeTrackData(uint8_t type)
 		for(k = 0; k < TrackBitFlow.Length; k ++)
 		{
 			if(DecodeTimes == 0)									    //正向解
-			{
+			{			
 				i = k;
+			
 			}
 			else														//反向解
 			{
-				i = TrackBitFlow.Length - (k + 1);
+				
+				i = TrackBitFlow.Length - (k + 1);		
 			}
 			bData = TrackBitFlow.Value[i];
+			
 			if(bData == 2)												//缺省全部转换为零解
 			{
 				bData = 0;
@@ -1445,12 +1452,14 @@ void InitMagDecode(void)
 ********************************************************************/
 uint8_t MagDecodeTrack(uint8_t type)
 {
-	uint8_t DecodeTimes, bFlag, bBrushError = 0;
+	uint8_t DecodeTimes, bFlag, bBrushError = 0;//printf("001\r\n");
 	for(DecodeTimes = 0; DecodeTimes < 2; DecodeTimes++)
 	{
 		if(DecodeTimes == 1)
 		{
+			
 			ResortMagData(type);						//反解		
+//			printf("001\r\n");
 		}
 		if(DecodeTimeToBit(type))
 		{
@@ -1585,10 +1594,10 @@ bit data to a character of ISO or JIS format.
 EXTERNMAG void MSR_Character_Decoder (void)
 {
 	int ret;
-	DBG_S("Track1TimeFlow.Length = %d\r\n",Track1TimeFlow.Length);
-	DBG_S("Track2TimeFlow.Length = %d\r\n",Track2TimeFlow.Length);
-	DBG_S("Track3TimeFlow.Length = %d\r\n",Track3TimeFlow.Length);
-	if((ENC_KEY.temp.selecttrack == 0x30) || (getbit(0,ENC_KEY.temp.selecttrack) == 0x01))
+//	DBG_S("Track1TimeFlow.Length = %d\r\n",Track1TimeFlow.Length);
+//	DBG_S("Track2TimeFlow.Length = %d\r\n",Track2TimeFlow.Length);
+//	DBG_S("Track3TimeFlow.Length = %d\r\n",Track3TimeFlow.Length);
+	if((ENC_KEY.temp.selecttrack == 0x30) || (getbit(0,ENC_KEY.temp.selecttrack) == 0x01)) //第一轨道数据解码
     {		
     	if (Track1TimeFlow.Length > 20) {			//至少前后有10个前导0才去解码
     		ret = MagDecodeTrack(0x17);						//第一磁道数据7Bit解码
@@ -1606,21 +1615,25 @@ EXTERNMAG void MSR_Character_Decoder (void)
     		#endif
     		}
     		if (0 == ret) {									//解码成功
-    			Track1Data.Value[0] = 0x2B;					//一磁道数据开始分隔符
+//    			Track1Data.Value[0] = 0x2B;					//一磁道数据开始分隔符
+//					Track1Data.Value[0]=0;
+					Track1Data.Value[0] = ENC_KEY.temp.setseparator;					//一磁道数据开始分隔符
     		}
     	}
 	}
 
-	if((ENC_KEY.temp.selecttrack == 0x30) || (getbit(1,ENC_KEY.temp.selecttrack) == 0x02))
+	if((ENC_KEY.temp.selecttrack == 0x30) || (getbit(1,ENC_KEY.temp.selecttrack) == 0x02))//第二轨道数据解码
     {	
     	if (Track2TimeFlow.Length > 20) {			//至少前后有10个前导0才去解码
     		ret = MagDecodeTrack(0x25);						//第二磁道数据5Bit解码
     		if (0 == ret) {									//解码成功
-    			Track2Data.Value[0] = 0x2C;					//二磁道数据开始分隔符
+//    			Track2Data.Value[0] = 0x2C;					//二磁道数据开始分隔符
+//					Track2Data.Value[0]=0;
+					Track2Data.Value[0] = ENC_KEY.temp.setseparator;					//二磁道数据开始分隔符
     		}
     	}
 	}
-	if((ENC_KEY.temp.selecttrack == 0x30) || (getbit(2,ENC_KEY.temp.selecttrack) == 0x04))
+	if((ENC_KEY.temp.selecttrack == 0x30) || (getbit(2,ENC_KEY.temp.selecttrack) == 0x04))//第三轨道数据解码
     {	
     	if (Track3TimeFlow.Length > 20) {			//至少前后有10个前导0才去解码
     		ret = MagDecodeTrack(0x35);						//第三磁道数据5Bit解码
@@ -1637,10 +1650,17 @@ EXTERNMAG void MSR_Character_Decoder (void)
     		#endif
     		}
     		if (0 == ret) {									//解码成功
-    			Track3Data.Value[0] = 0x2D;					//三磁道数据开始分隔符
+//    			Track3Data.Value[0] = 0x2D;					//三磁道数据开始分隔符
+//					Track3Data.Value[0]=0;
+					Track3Data.Value[0] = ENC_KEY.temp.setseparator;					//三磁道数据开始分隔符
     		}
     	}
 	}
+//	if((ENC_KEY.temp.selecttrack == 0x33) || (getbit(4,ENC_KEY.temp.selecttrack) == 0x03))
+//	{
+//		printf("1451\r\n");
+//		
+//	}
 	return;
 }
 

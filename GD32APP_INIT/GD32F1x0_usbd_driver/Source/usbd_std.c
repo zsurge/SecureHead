@@ -66,7 +66,7 @@ static void (*standard_device_request[])(usbd_core_handle_struct *pudev, usb_dev
 };
 
 /* get standard descriptor handler */
-static uint8_t* (*standard_descriptor_get[])(usbd_core_handle_struct *pudev, uint8_t index, uint16_t *pLen) = 
+static uint8_t* (*standard_descriptor_get[])(usbd_core_handle_struct *pudev, uint8_t index, uint16_t *pLen) =  
 {
     usbd_device_descriptor_get,
     usbd_configuration_descriptor_get,
@@ -629,8 +629,8 @@ static void  usbd_getdescriptor (usbd_core_handle_struct *pudev, usb_device_req_
 
         if (desc_index <= 0x03U) {
             /* call corresponding descriptor get function */
-            pbuf = standard_descriptor_get[desc_index - 1](pudev, (uint8_t)(req->wValue) & 0xFFU, &len);
-
+            pbuf = standard_descriptor_get[desc_index - 1](pudev, (uint8_t)(req->wValue) & 0xFFU, &len); 
+            
             if ((0U != len) && (0U != req->wLength)) {
                 len = MIN(len, req->wLength);
 

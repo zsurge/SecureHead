@@ -40,14 +40,14 @@ typedef void (*function)(void);
 #define	SETKEYCOMMU						0xF3	/* setting Dukpt key communications commands */
 
 #define SETBEEP                         0x11    /* Beep Setting */
-#define READID							0x22	/* read secureheadreader ID */
+#define READID							  0x22	/* read secureheadreader ID */
 #define SETDECODEWAY					0x1D	/* Decoding Method Settings */
 #define MSRSETTINGS						0x1A	/* MSR Reading Settings */
 #define SETDEFAULT						0x18	/* set default configuration */
 #define SETENCMODE						0x58	/* set encryption mode */
 #define GETCHALLENGE					0x74	/* get encrypt challenge */
 #define SENDAUTHDATA					0x74	/* send authentication data */
-#define GETSECURITYLEVEL				0x7E	/* get security level */
+#define GETSECURITYLEVEL			0x7E	/* get security level */
 #define SETDEVICEKEY					0x76	/* set device key command */	
 
 #define SETENCRYPTIONOPTION				0x84	/* Encryption Option Setting */
@@ -57,11 +57,13 @@ typedef void (*function)(void);
 #define REVIEWSN						0x4E	/* review serial number */
 #define SETSID							0x54	/* set Session ID */
 #define SETENCWAY						0x4C	/* set encryption way */
-
+#define HASHOPTION					0x5C	/* Hash Option 
+Setting */
+#define MASKOPTION          0x86
 
 //#define DDATAOK							0x20	//回传上帧正确
 
-#define SPACE		        			0x00
+#define SPACE		        			  0x00
 #define FINISH		       	 			0x55
 
 //add for zd
@@ -83,17 +85,21 @@ typedef void (*function)(void);
 #define MAX_RXD_BUF_LEN        			100
 #define MAX_TXD_BUF_LEN					100
 
+#define REVIEWSET					               0x1F   /*主要是激活设置命令  */
+#define ENCRYPTEXTERNAL					               0x41   /*主要是激活设置命令  */
+#define ACTIVATEAUTHEN            0x80  //加密等级4的时候，认证模式
 
-
+#define LOADKEY            0x13  //导入密钥 key
 
 #define KEYADD							0x800F800		  //密钥存储地址
 #define KEYADDBAK						0x800E400		  //备份密钥存储地址
 
 
+
 union __ENC_KEY
 {
 	//uint8_t key[64];
-	uint8_t key[140];                        //添加磁道前后缀
+	uint8_t key[144];                        //添加磁道前后缀
 	struct{
 	uint8_t zhangwei;                       //站位
 	uint8_t beepmode;                       //beep mode
@@ -120,7 +126,11 @@ union __ENC_KEY
 	uint8_t track1suffix[6];                //磁道1后缀，最大6字节 for zd
 	uint8_t track2suffix[6];                //磁道1后缀，最大6字节 for zd
 	uint8_t track3suffix[6];                //磁道1后缀，最大6字节 for zd
-
+  
+	uint8_t Enhancedstatue;
+	uint8_t Enhancedoption;
+	uint8_t HASHSET;
+	uint8_t MaskSetting;
 	
 	uint8_t lrc;							//异或和
 	uint8_t bcc;							//累加和
@@ -154,6 +164,8 @@ uint8_t AsciiToHex(uint8_t * pAscii, uint8_t * pHex, int nLen);
 uint8_t GetNextKSN(void);
 void CalcCryptoKey(void);
 void ResetSetting(void);
+
+void Default_Settings(void);//恢复最初设置
 
 #endif /* __APP_H */
 

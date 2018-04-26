@@ -6,7 +6,7 @@
 #include "magdecode.h"
 
 #define RXTEMPBUFLENMAX        512 
-//#define UART_PRINT
+#define UART_PRINT
 
 //extern unsigned char rec_buf0[RXTEMPBUFLENMAX];
 #define rec_buf0 ((uint8_t *)Track1TimeFlow.Value)			//节省空间共享缓存区
